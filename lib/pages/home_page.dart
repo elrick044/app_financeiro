@@ -324,20 +324,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               child: GamificationWidget(user: _currentUser!),
             ),
             const SizedBox(height: 16),
-            if (_currentUser != null) ...[
-              GamificationWidget(user: _currentUser!),
-              const SizedBox(height: 16),
-            ],
-            _buildProfileActions(),
+            Semantics(
+              label: 'Ações do perfil',
+              child: _buildProfileActions(),
+            ),
           ],
-          Semantics(
-            label: 'Ações do perfil',
-            child: _buildProfileActions(),
-          ),
         ],
       ),
     );
   }
+
 
   Widget _buildWelcomeCard() {
     return Semantics(
