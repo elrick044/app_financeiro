@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/data_schema.dart';
+// Importa a classe de localizações gerada
+
+import '../l10n/app_localizations.dart';
 
 class GamificationWidget extends StatelessWidget {
   final UserModel user;
@@ -11,9 +14,12 @@ class GamificationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Obtenha a instância de AppLocalizations no método build
+    final l10n = AppLocalizations.of(context)!;
+
     return Semantics(
       container: true,
-      label: 'Seção de gamificação com conquistas e pontuação',
+      label: l10n.yourAchievements, // Usando string localizada
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -36,20 +42,21 @@ class GamificationWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(context),
+            _buildHeader(context, l10n), // Passa l10n
             const SizedBox(height: 16),
-            _buildPointsSection(context),
+            _buildPointsSection(context, l10n), // Passa l10n
             const SizedBox(height: 16),
-            _buildAchievements(context),
+            _buildAchievements(context, l10n), // Passa l10n
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  // Recebe l10n
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     return Semantics(
-      label: 'Cabeçalho de conquistas',
+      label: l10n.yourAchievements, // Usando string localizada
       child: Row(
         children: [
           ExcludeSemantics(
@@ -59,7 +66,7 @@ class GamificationWidget extends StatelessWidget {
                 color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
+              child: const Icon( // Changed to const Icon as properties are fixed
                 Icons.emoji_events,
                 color: Colors.white,
                 size: 24,
@@ -72,14 +79,14 @@ class GamificationWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Suas Conquistas',
+                  l10n.yourAchievements, // Usando string localizada
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  'Continue assim para desbloquear mais!',
+                  l10n.keepGoingToUnlockMore, // Usando string localizada
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.white.withOpacity(0.9),
                   ),
@@ -92,14 +99,14 @@ class GamificationWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildPointsSection(BuildContext context) {
+  // Recebe l10n
+  Widget _buildPointsSection(BuildContext context, AppLocalizations l10n) {
     final level = _calculateLevel(user.points);
     final nextLevelPoints = _getNextLevelPoints(level);
     final progress = user.points % 100 / 100;
 
     return Semantics(
-      label:
-      'Você está no nível $level com ${user.points} pontos. Faltam ${nextLevelPoints - user.points} para o próximo nível.',
+      label: l10n.levelInfo( level,  user.points,  nextLevelPoints - user.points), // String localizada com placeholders
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -113,7 +120,7 @@ class GamificationWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Pontos Totais',
+                  l10n.totalPoints, // Usando string localizada
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.white.withOpacity(0.9),
                   ),
@@ -128,17 +135,18 @@ class GamificationWidget extends StatelessWidget {
                 ),
               ],
             ),
-            _buildLevelBadge(context, level, progress),
+            _buildLevelBadge(context, level, progress, l10n), // Passa l10n
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLevelBadge(BuildContext context, int level, double progress) {
+  // Recebe l10n
+  Widget _buildLevelBadge(BuildContext context, int level, double progress, AppLocalizations l10n) {
     return Semantics(
-      label: 'Indicador de progresso do nível',
-      hint: 'Progresso de ${(progress * 100).toStringAsFixed(0)}% para o nível $level',
+      label: l10n.levelProgressInfo( (progress * 100).toStringAsFixed(0),  level), // String localizada com placeholders
+      hint: l10n.levelProgressInfo( (progress * 100).toStringAsFixed(0),  level), // Usando string localizada
       child: Column(
         children: [
           Stack(
@@ -175,7 +183,7 @@ class GamificationWidget extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Nível $level',
+            l10n.level(level), // String localizada com placeholder
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Colors.white.withOpacity(0.9),
               fontWeight: FontWeight.w600,
@@ -186,15 +194,16 @@ class GamificationWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAchievements(BuildContext context) {
-    final achievements = _getAchievements();
+  // Recebe l10n
+  Widget _buildAchievements(BuildContext context, AppLocalizations l10n) {
+    final achievements = _getAchievements(l10n); // Passa l10n para obter conquistas localizadas
     final unlockedAchievements = user.achievements;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Conquistas Desbloqueadas',
+          l10n.unlockedAchievements, // Usando string localizada
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -202,7 +211,7 @@ class GamificationWidget extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         if (unlockedAchievements.isEmpty)
-          _buildEmptyAchievements(context)
+          _buildEmptyAchievements(context, l10n) // Passa l10n
         else
           Wrap(
             spacing: 8,
@@ -210,7 +219,9 @@ class GamificationWidget extends StatelessWidget {
             children: achievements.map((achievement) {
               final isUnlocked = unlockedAchievements.contains(achievement.id);
               return Semantics(
-                label: '${achievement.name}. ${achievement.description}. ${isUnlocked ? 'Desbloqueada' : 'Bloqueada'}',
+                label: isUnlocked
+                    ? l10n.achievementUnlockedStatus(achievement.name, achievement.description) // String localizada com placeholder
+                    : l10n.achievementLockedStatus(achievement.name, achievement.description), // String localizada com placeholder
                 child: _buildAchievementBadge(context, achievement, isUnlocked),
               );
             }).toList(),
@@ -219,9 +230,10 @@ class GamificationWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyAchievements(BuildContext context) {
+  // Recebe l10n
+  Widget _buildEmptyAchievements(BuildContext context, AppLocalizations l10n) {
     return Semantics(
-      label: 'Nenhuma conquista desbloqueada',
+      label: l10n.noAchievementsYet, // Usando string localizada
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -244,7 +256,7 @@ class GamificationWidget extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Continue registrando suas transações para desbloquear conquistas!',
+                l10n.noAchievementsYet, // Usando string localizada
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.white.withOpacity(0.9),
                 ),
@@ -284,7 +296,7 @@ class GamificationWidget extends StatelessWidget {
           const SizedBox(width: 6),
           ExcludeSemantics(
             child: Text(
-              achievement.name,
+              achievement.name, // O nome da conquista já vem localizado do _getAchievements
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: isUnlocked ? Colors.white : Colors.white.withOpacity(0.7),
                 fontWeight: isUnlocked ? FontWeight.w600 : FontWeight.normal,
@@ -304,36 +316,39 @@ class GamificationWidget extends StatelessWidget {
     return level * 100;
   }
 
-  List<Achievement> _getAchievements() {
+  // Agora recebe l10n para criar Achievements com nomes e descrições localizadas
+  List<Achievement> _getAchievements(AppLocalizations l10n) {
     return [
       Achievement(
         id: 'first_transaction',
-        name: 'Primeira Transação',
-        description: 'Registrou sua primeira transação',
+        name: l10n.achievementFirstTransactionName,
+        description: l10n.achievementFirstTransactionDescription,
         icon: Icons.star,
       ),
       Achievement(
         id: 'budget_keeper',
-        name: 'Controlador',
-        description: 'Não ultrapassou o orçamento mensal',
+        name: l10n.achievementBudgetKeeperName,
+        description: l10n.achievementBudgetKeeperDescription,
         icon: Icons.shield,
       ),
       Achievement(
         id: 'consistent_user',
-        name: 'Consistente',
-        description: 'Registrou transações por 7 dias seguidos',
+        name: l10n.achievementConsistentUserName,
+        description: l10n.achievementConsistentUserDescription,
         icon: Icons.trending_up,
       ),
       Achievement(
         id: 'saver',
-        name: 'Poupador',
-        description: 'Teve mais receitas que despesas no mês',
+        name: l10n.achievementSaverName,
+        description: l10n.achievementSaverDescription,
         icon: Icons.savings,
       ),
     ];
   }
 }
 
+// A classe Achievement não precisa ser alterada, pois agora ela recebe
+// strings já localizadas através do construtor.
 class Achievement {
   final String id;
   final String name;

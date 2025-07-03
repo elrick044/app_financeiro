@@ -1,0 +1,188 @@
+{
+  "@@locale": "en",
+  "onboardingTitle1": "Control Your Finances",
+  "onboardingDescription1": "Record your income and expenses simply and organizedly",
+  "onboardingTitle2": "Visualize Your Progress",
+  "onboardingDescription2": "Track your spending with intuitive charts and detailed reports",
+  "onboardingTitle3": "Achieve Your Goals",
+  "onboardingDescription3": "Earn points and unlock achievements by keeping your finances in order",
+  "previousButton": "Previous",
+  "nextButton": "Next",
+  "getStartedButton": "Get Started Now",
+  "welcomeBack": "Welcome back!",
+  "createYourAccount": "Create your account",
+  "fullName": "Full name",
+  "nameRequired": "Name is required",
+  "nameMinLength": "Name must be at least 2 characters long",
+  "email": "Email",
+  "emailRequired": "Email is required",
+  "password": "Password",
+  "passwordRequired": "Password is required",
+  "passwordMinLength": "Password must be at least 6 characters long",
+  "loginButton": "Sign In",
+  "createAccountButton": "Create Account",
+  "continueWithGoogle": "Continue with Google",
+  "noAccountQuestion": "Don't have an account? ",
+  "alreadyHaveAccountQuestion": "Already have an account? ",
+  "createAccountLink": "Create account",
+  "loginLink": "Sign in",
+  "forgotPassword": "Forgot your password?",
+  "enterEmailForPasswordRecovery": "Enter your email to recover your password",
+  "recoveryEmailSent": "Recovery email sent!",
+  "signInError": "Sign in error: ",
+  "signUpError": "Sign up error: ",
+  "googleSignInError": "Google sign in error: ",
+  "passwordResetError": "Password reset error: ",
+  "homeTab": "Home",
+  "historyTab": "History",
+  "chartsTab": "Charts",
+  "profileTab": "Profile",
+  "signOut": "Sign Out",
+  "errorLoadingData": "Error loading data: ",
+  "noTransactionsFound": "No transactions found",
+  "helloUser": "Hello, {userName}! 👋",
+  "@helloUser": {
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "Erick"
+      }
+    }
+  },
+  "howAreYourFinancesToday": "How are your finances today?",
+  "currentUserDefault": "User",
+  "currentBalance": "Current Balance",
+  "totalIncome": "Income",
+  "totalExpense": "Expenses",
+  "quickActions": "Quick Actions",
+  "addIncome": "Add Income",
+  "addExpense": "Add Expense",
+  "noRecentTransactions": "No recent transactions",
+  "recentTransactions": "Recent Transactions",
+  "viewAll": "View all",
+  "totalIncomesChart": "Total Income",
+  "totalExpensesChart": "Total Expenses",
+  "settings": "Settings",
+  "help": "Help",
+  "confirmDeletion": "Confirm deletion",
+  "confirmTransactionDeletion": "Are you sure you want to delete this transaction?",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "transactionDeletedSuccessfully": "Transaction deleted successfully",
+  "errorDeletingTransaction": "Error deleting transaction: ",
+  "errorSigningOut": "Error signing out: ",
+  "refreshData": "Refresh Data",
+  "editTransaction": "Edit Transaction",
+  "newTransaction": "New Transaction",
+  "transactionType": "Transaction Type",
+  "income": "Income",
+  "expense": "Expense",
+  "amount": "Amount",
+  "amountRequired": "Amount is required",
+  "enterValidAmount": "Enter a valid amount",
+  "category": "Category",
+  "selectCategory": "Select a category",
+  "categoryRequired": "Select a category",
+  "date": "Date",
+  "descriptionOptional": "Description (Optional)",
+  "enterTransactionDescriptionHint": "Enter a description for this transaction...",
+  "updateTransaction": "Update Transaction",
+  "saveTransaction": "Save Transaction",
+  "userNotFound": "User not found",
+  "transactionUpdatedSuccessfully": "Transaction updated successfully!",
+  "transactionAddedSuccessfully": "Transaction added successfully!",
+  "errorSavingTransaction": "Error saving transaction: ",
+  "selectColor": "Select Color",
+  "cancel": "Cancel",
+  "select": "Select",
+  "expensesTab": "Expenses",
+  "incomeTab": "Income",
+  "noExpensesFound": "No expenses found",
+  "noIncomeFound": "No income found",
+  "totalAmount": "Total: {currencySymbol} {totalValue}",
+  "@totalAmount": {
+    "placeholders": {
+      "currencySymbol": {
+        "type": "String",
+        "example": "USD"
+      },
+      "totalValue": {
+        "type": "String",
+        "example": "123.45"
+      }
+    }
+  },
+  "yourAchievements": "Your Achievements",
+  "keepGoingToUnlockMore": "Keep it up to unlock more!",
+  "totalPoints": "Total Points",
+  "level": "Level {levelNumber}",
+  "@level": {
+    "placeholders": {
+      "levelNumber": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "unlockedAchievements": "Unlocked Achievements",
+  "noAchievementsYet": "Keep logging your transactions to unlock achievements!",
+  "achievementFirstTransactionName": "First Transaction",
+  "achievementFirstTransactionDescription": "Logged your first transaction",
+  "achievementBudgetKeeperName": "Budget Keeper",
+  "achievementBudgetKeeperDescription": "Didn't exceed monthly budget",
+  "achievementConsistentUserName": "Consistent User",
+  "achievementConsistentUserDescription": "Logged transactions for 7 consecutive days",
+  "achievementSaverName": "Saver",
+  "achievementSaverDescription": "Had more income than expenses this month",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "incomeTypeLabel": "Income",
+  "expenseTypeLabel": "Expense",
+  "editAction": "Edit",
+  "deleteAction": "Delete",
+  "addTransaction": "Add Transaction",
+  "currencySymbol": "USD",
+  "loadingHistory": "Loading transaction history",
+  "backButtonLabel": "Back",
+  "selectDate": "Select date",
+  "levelInfo": "You are at level {levelNumber} with {currentPoints} points. {pointsToNextLevel} to next level.",
+  "@levelInfo": {
+    "placeholders": {
+      "levelNumber": { "type": "int" },
+      "currentPoints": { "type": "int" },
+      "pointsToNextLevel": { "type": "int" }
+    }
+  },
+  "levelProgressInfo": "Progress of {progress}% for level {levelNumber}",
+  "@levelProgressInfo": {
+    "placeholders": {
+      "progress": { "type": "String" },
+      "levelNumber": { "type": "int" }
+    }
+  },
+  "achievementUnlockedStatus": "{name}. {description}. Unlocked.",
+  "@achievementUnlockedStatus": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "description": { "type": "String" }
+    }
+  },
+  "achievementLockedStatus": "{name}. {description}. Locked.",
+  "@achievementLockedStatus": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "description": { "type": "String" }
+    }
+  },
+  "transactionCardSemanticLabel": "{categoryName}, {description}{date}, {typeLabel} of {amount}",
+  "@transactionCardSemanticLabel": {
+    "placeholders": {
+      "categoryName": { "type": "String" },
+      "description": { "type": "String" },
+      "date": { "type": "String" },
+      "typeLabel": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "moreOptions": "More options"
+}

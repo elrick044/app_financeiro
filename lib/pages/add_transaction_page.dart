@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../services/firebase_service.dart';
 import '../../models/data_schema.dart';
+// Importa as classes de internacionalização
+import 'package:intl/intl.dart';
+
+import '../l10n/app_localizations.dart'; // Para formatação de moeda e datas
 
 class AddTransactionPage extends StatefulWidget {
   final List<CategoryModel> categories;
@@ -34,27 +38,34 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   void initState() {
     super.initState();
     _initializeForm();
-    print(widget.categories);
+    // print(widget.categories); // Comentado para ambiente de produção, útil para depuração
   }
 
   void _initializeForm() {
     if (widget.transaction != null) {
+      // Editing existing transaction
       final transaction = widget.transaction!;
+      // A formatação aqui é apenas para display inicial, o validator lida com a entrada
       _amountController.text = transaction.amount.toStringAsFixed(2).replaceAll('.', ',');
       _descriptionController.text = transaction.description;
       _selectedType = transaction.type;
       _selectedDate = transaction.date;
+
+      // Find the category
       _selectedCategory = widget.categories.firstWhere(
             (category) => category.name == transaction.category,
         orElse: () => widget.categories.first,
       );
     } else if (widget.initialType != null) {
+      // Initial type provided
       _selectedType = widget.initialType!;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Obtenha a instância de AppLocalizations no método build
+    final l10n = AppLocalizations.of(context)!;
     final isEditing = widget.transaction != null;
 
     return Scaffold(
@@ -62,7 +73,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         title: Semantics(
           header: true,
           child: Text(
-            isEditing ? 'Editar Transação' : 'Nova Transação',
+            isEditing ? l10n.editTransaction : l10n.newTransaction, // Strings localizadas
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.bold,
@@ -73,10 +84,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         elevation: 0,
         leading: Semantics(
           button: true,
-          label: 'Voltar',
+          label: l10n.backButtonLabel, // String localizada para acessibilidade (certifique-se de adicioná-la aos ARBs)
           child: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            color: Theme.of(context).colorScheme.onSurface,
+            icon: Icon(
+              Icons.arrow_back,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
@@ -89,17 +102,17 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTypeSelector(),
+                _buildTypeSelector(l10n), // Passa l10n
                 const SizedBox(height: 24),
-                _buildAmountField(),
+                _buildAmountField(l10n), // Passa l10n
                 const SizedBox(height: 24),
-                _buildCategorySelector(),
+                _buildCategorySelector(l10n), // Passa l10n
                 const SizedBox(height: 24),
-                _buildDateSelector(),
+                _buildDateSelector(l10n), // Passa l10n
                 const SizedBox(height: 24),
-                _buildDescriptionField(),
+                _buildDescriptionField(l10n), // Passa l10n
                 const SizedBox(height: 32),
-                _buildSaveButton(isEditing),
+                _buildSaveButton(isEditing, l10n), // Passa l10n
               ],
             ),
           ),
@@ -108,12 +121,42 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     );
   }
 
-  Widget _buildTypeSelector() {
+  // Helper para formatação de moeda (reutilizável)
+  String _formatCurrency(double amount, AppLocalizations l10n) {
+    final currentLocale = Localizations.localeOf(context).languageCode;
+    final format = NumberFormat.currency(
+      locale: currentLocale,
+      symbol: l10n.currencySymbol, // Usa o símbolo da moeda do ARB
+      decimalDigits: 2,
+    );
+    return format.format(amount);
+  }
+
+  // Helper para formatar a data (reutilizável)
+  String _formatDate(DateTime date, AppLocalizations l10n) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final transactionDate = DateTime(date.year, date.month, date.day);
+
+    if (transactionDate == today) {
+      return l10n.today; // String localizada
+    } else if (transactionDate == yesterday) {
+      return l10n.yesterday; // String localizada
+    } else {
+      // Formata a data para a localidade atual
+      final currentLocale = Localizations.localeOf(context).languageCode;
+      return DateFormat.yMd(currentLocale).format(date); // Ex: 03/07/2025 ou 7/3/2025
+    }
+  }
+
+  // Recebe l10n
+  Widget _buildTypeSelector(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Tipo de Transação',
+          l10n.transactionType, // String localizada
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
@@ -125,18 +168,20 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             Expanded(
               child: _buildTypeButton(
                 TransactionType.income,
-                'Receita',
+                l10n.income, // String localizada
                 Icons.trending_up,
                 Theme.of(context).colorScheme.secondary,
+                l10n, // Passa l10n
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildTypeButton(
                 TransactionType.expense,
-                'Despesa',
+                l10n.expense, // String localizada
                 Icons.trending_down,
                 Theme.of(context).colorScheme.error,
+                l10n, // Passa l10n
               ),
             ),
           ],
@@ -145,7 +190,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     );
   }
 
-  Widget _buildTypeButton(TransactionType type, String label, IconData icon, Color color) {
+  // Recebe l10n
+  Widget _buildTypeButton(TransactionType type, String label, IconData icon, Color color, AppLocalizations l10n) {
     final isSelected = _selectedType == type;
 
     return Semantics(
@@ -156,7 +202,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         onTap: () {
           setState(() {
             _selectedType = type;
-            _selectedCategory = null;
+            _selectedCategory = null; // Reset category when type changes
           });
         },
         child: AnimatedContainer(
@@ -188,12 +234,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     );
   }
 
-  Widget _buildAmountField() {
+  // Recebe l10n
+  Widget _buildAmountField(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Valor',
+          l10n.amount, // String localizada
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
@@ -208,23 +255,23 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
           ],
           decoration: InputDecoration(
-            labelText: 'Valor',
-            prefixText: 'R\$ ',
+            labelText: l10n.amount, // String localizada
+            prefixText: '${l10n.currencySymbol} ', // Símbolo da moeda localizada
             prefixStyle: TextStyle(
               color: Theme.of(context).colorScheme.primary,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
-            hintText: '0,00',
+            hintText: '0,00', // Hint pode ser genérico ou localizado se precisar
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
             fillColor: Theme.of(context).colorScheme.surface,
           ),
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           validator: (value) {
-            if (value == null || value.trim().isEmpty) return 'Valor é obrigatório';
+            if (value == null || value.trim().isEmpty) return l10n.amountRequired; // String localizada
             final amount = double.tryParse(value.replaceAll(',', '.'));
-            if (amount == null || amount <= 0) return 'Digite um valor válido';
+            if (amount == null || amount <= 0) return l10n.enterValidAmount; // String localizada
             return null;
           },
         ),
@@ -232,7 +279,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     );
   }
 
-  Widget _buildCategorySelector() {
+  // Recebe l10n
+  Widget _buildCategorySelector(AppLocalizations l10n) {
     final filteredCategories = widget.categories
         .where((category) => category.type == _selectedType)
         .toList();
@@ -241,7 +289,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Categoria',
+          l10n.category, // String localizada
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
@@ -251,7 +299,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         DropdownButtonFormField<CategoryModel>(
           value: _selectedCategory?.type == _selectedType ? _selectedCategory : null,
           decoration: InputDecoration(
-            labelText: 'Selecione uma categoria',
+            labelText: l10n.selectCategory, // String localizada
             filled: true,
             fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -263,7 +311,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 children: [
                   Icon(_getIconData(category.icon), color: Color(int.parse(category.color)), size: 20),
                   const SizedBox(width: 12),
-                  Text(category.name),
+                  Text(category.name), // Nome da categoria não é traduzido via ARB, vem do modelo
                 ],
               ),
             );
@@ -273,18 +321,19 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               _selectedCategory = category;
             });
           },
-          validator: (value) => value == null ? 'Selecione uma categoria' : null,
+          validator: (value) => value == null ? l10n.categoryRequired : null, // String localizada
         ),
       ],
     );
   }
 
-  Widget _buildDateSelector() {
+  // Recebe l10n
+  Widget _buildDateSelector(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Data',
+          l10n.date, // String localizada
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
@@ -293,9 +342,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         const SizedBox(height: 12),
         Semantics(
           button: true,
-          label: 'Selecionar data',
+          label: l10n.selectDate, // String localizada para acessibilidade (adicione ao ARB)
           child: GestureDetector(
-            onTap: _selectDate,
+            onTap: () => _selectDate(l10n), // Passa l10n
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -309,7 +358,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary),
                   const SizedBox(width: 12),
                   Text(
-                    '${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}',
+                    _formatDate(_selectedDate, l10n), // Usa helper de formatação de data
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const Spacer(),
@@ -323,12 +372,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     );
   }
 
-  Widget _buildDescriptionField() {
+  // Recebe l10n
+  Widget _buildDescriptionField(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Descrição (Opcional)',
+          l10n.descriptionOptional, // String localizada
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
@@ -340,8 +390,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           maxLines: 3,
           textInputAction: TextInputAction.done,
           decoration: InputDecoration(
-            hintText: 'Digite uma descrição para esta transação...',
-            labelText: 'Descrição',
+            hintText: l10n.enterTransactionDescriptionHint, // String localizada
+            labelText: l10n.descriptionOptional, // String localizada
             filled: true,
             fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -351,14 +401,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     );
   }
 
-  Widget _buildSaveButton(bool isEditing) {
+  // Recebe l10n
+  Widget _buildSaveButton(bool isEditing, AppLocalizations l10n) {
     return Semantics(
       button: true,
-      label: isEditing ? 'Atualizar transação' : 'Salvar transação',
+      label: isEditing ? l10n.updateTransaction : l10n.saveTransaction, // Strings localizadas
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: _isLoading ? null : _handleSave,
+          onPressed: _isLoading ? null : () => _handleSave(l10n), // Passa l10n para _handleSave
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -376,7 +427,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             ),
           )
               : Text(
-            isEditing ? 'Atualizar Transação' : 'Salvar Transação',
+            isEditing ? l10n.updateTransaction : l10n.saveTransaction, // Strings localizadas
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           ),
         ),
@@ -384,7 +435,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     );
   }
 
-  Future<void> _selectDate() async {
+  // Recebe l10n para o builder do DatePicker
+  Future<void> _selectDate(AppLocalizations l10n) async {
     final date = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
@@ -409,7 +461,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     }
   }
 
-  Future<void> _handleSave() async {
+  // Recebe l10n para as mensagens de erro/sucesso
+  Future<void> _handleSave(AppLocalizations l10n) async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -418,7 +471,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
     try {
       final currentUser = _firebaseService.currentUser;
-      if (currentUser == null) throw 'Usuário não encontrado';
+      if (currentUser == null) throw l10n.userNotFound; // String localizada
 
       final amount = double.parse(_amountController.text.replaceAll(',', '.'));
       final description = _descriptionController.text.trim();
@@ -454,8 +507,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(widget.transaction != null
-                ? 'Transação atualizada com sucesso!'
-                : 'Transação adicionada com sucesso!'),
+                ? l10n.transactionUpdatedSuccessfully // String localizada
+                : l10n.transactionAddedSuccessfully), // String localizada
             backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );
@@ -465,7 +518,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao salvar transação: $e'),
+            content: Text('${l10n.errorSavingTransaction}$e'), // String localizada com erro
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -479,6 +532,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     }
   }
 
+  // Este método não precisa de l10n, pois ele apenas mapeia ícones
   IconData _getIconData(String iconName) {
     final iconMap = {
       'restaurant': Icons.restaurant,
@@ -494,8 +548,59 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       'monetization_on': Icons.monetization_on,
       'account_balance_wallet': Icons.account_balance_wallet,
       'more_horiz': Icons.more_horiz,
+      // Adicione outros ícones que você usa em suas categorias
+      'shopping_cart': Icons.shopping_cart,
+      'flight': Icons.flight,
+      'pets': Icons.pets,
+      'fitness_center': Icons.fitness_center,
+      'book': Icons.book,
+      'build': Icons.build,
+      'emoji_events': Icons.emoji_events,
+      'fastfood': Icons.fastfood,
+      'games': Icons.games,
+      'medical_services': Icons.medical_services,
+      'public': Icons.public,
+      'receipt_long': Icons.receipt_long,
+      'redeem': Icons.redeem,
+      'savings': Icons.savings,
+      'stars': Icons.stars,
+      'toys': Icons.toys,
+      'videogame_asset': Icons.videogame_asset,
+      'wallet': Icons.wallet,
+      'add_box': Icons.add_box,
+      'auto_stories': Icons.auto_stories,
+      'bed': Icons.bed,
+      'celebration': Icons.celebration,
+      'computer': Icons.computer,
+      'diamond': Icons.diamond,
+      'dry_cleaning': Icons.dry_cleaning,
+      'factory': Icons.factory,
+      'festival': Icons.festival,
+      'garden': Icons.yard,
+      'hardware': Icons.hardware,
+      'health_and_safety': Icons.health_and_safety,
+      'library_books': Icons.library_books,
+      'mail': Icons.mail,
+      'menu_book': Icons.menu_book,
+      'military_tech': Icons.military_tech,
+      'park': Icons.park,
+      'payments': Icons.payments,
+      'person_pin_circle': Icons.person_pin_circle,
+      'pie_chart': Icons.pie_chart,
+      'precision_manufacturing': Icons.precision_manufacturing,
+      'qr_code': Icons.qr_code,
+      'request_quote': Icons.request_quote,
+      'rocket_launch': Icons.rocket_launch,
+      'roller_skating': Icons.roller_skating,
+      'shield': Icons.shield,
+      'stadium': Icons.stadium,
+      'store': Icons.store,
+      'theater_comedy': Icons.theater_comedy,
+      'travel_explore': Icons.travel_explore,
+      'wallet_giftcard': Icons.wallet_giftcard,
+      'waves': Icons.waves,
+      'weekend': Icons.weekend,
     };
-
     return iconMap[iconName] ?? Icons.category;
   }
 

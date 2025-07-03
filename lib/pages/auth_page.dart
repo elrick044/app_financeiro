@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/firebase_service.dart';
 import '../../models/data_schema.dart';
+import '../l10n/app_localizations.dart';
 import 'home_page.dart';
 
 class AuthPage extends StatefulWidget {
@@ -23,6 +24,9 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Obtenha a instância de AppLocalizations no método build
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -43,16 +47,16 @@ class _AuthPageState extends State<AuthPage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 40),
-                    _buildHeader(),
+                    _buildHeader(l10n), // Passa l10n
                     const SizedBox(height: 48),
-                    _buildAuthForm(),
+                    _buildAuthForm(l10n), // Passa l10n
                     const SizedBox(height: 24),
-                    _buildGoogleSignInButton(),
+                    _buildGoogleSignInButton(l10n), // Passa l10n
                     const SizedBox(height: 24),
-                    _buildToggleAuthMode(),
+                    _buildToggleAuthMode(l10n), // Passa l10n
                     if (!_isLogin) ...[
                       const SizedBox(height: 16),
-                      _buildForgotPassword(),
+                      _buildForgotPassword(l10n), // Passa l10n
                     ],
                   ],
                 ),
@@ -64,7 +68,8 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget _buildHeader() {
+  // Recebe l10n como parâmetro
+  Widget _buildHeader(AppLocalizations l10n) {
     return Column(
       children: [
         Semantics(
@@ -86,7 +91,7 @@ class _AuthPageState extends State<AuthPage> {
         ),
         const SizedBox(height: 24),
         Text(
-          'FinanceFlow',
+          'FinanceFlow', // Este pode ser um nome fixo ou vir de l10n.appName, dependendo de como você quer o logo
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.primary,
@@ -94,7 +99,7 @@ class _AuthPageState extends State<AuthPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          _isLogin ? 'Bem-vindo de volta!' : 'Crie sua conta',
+          _isLogin ? l10n.welcomeBack : l10n.createYourAccount, // Strings localizadas
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
           ),
@@ -103,7 +108,8 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget _buildAuthForm() {
+  // Recebe l10n como parâmetro
+  Widget _buildAuthForm(AppLocalizations l10n) {
     return Form(
       key: _formKey,
       child: Column(
@@ -111,16 +117,16 @@ class _AuthPageState extends State<AuthPage> {
           if (!_isLogin) ...[
             _buildTextField(
               controller: _nameController,
-              label: 'Nome completo',
+              label: l10n.fullName, // String localizada
               icon: Icons.person,
               textInputAction: TextInputAction.next,
               autofillHints: const [AutofillHints.name],
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Nome é obrigatório';
+                  return l10n.nameRequired; // String localizada
                 }
                 if (value.trim().length < 2) {
-                  return 'Nome deve ter pelo menos 2 caracteres';
+                  return l10n.nameMinLength; // String localizada
                 }
                 return null;
               },
@@ -129,14 +135,14 @@ class _AuthPageState extends State<AuthPage> {
           ],
           _buildTextField(
             controller: _emailController,
-            label: 'Email',
+            label: l10n.email, // String localizada
             icon: Icons.email,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             autofillHints: const [AutofillHints.email],
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Email é obrigatório';
+                return l10n.emailRequired; // String localizada
               }
               return null;
             },
@@ -144,7 +150,7 @@ class _AuthPageState extends State<AuthPage> {
           const SizedBox(height: 16),
           _buildTextField(
             controller: _passwordController,
-            label: 'Senha',
+            label: l10n.password, // String localizada
             icon: Icons.lock,
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.done,
@@ -164,21 +170,22 @@ class _AuthPageState extends State<AuthPage> {
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Senha é obrigatória';
+                return l10n.passwordRequired; // String localizada
               }
               if (!_isLogin && value.length < 6) {
-                return 'Senha deve ter pelo menos 6 caracteres';
+                return l10n.passwordMinLength; // String localizada
               }
               return null;
             },
           ),
           const SizedBox(height: 24),
-          _buildSubmitButton(),
+          _buildSubmitButton(l10n), // Passa l10n
         ],
       ),
     );
   }
 
+  // Este método não precisa de l10n pois ele não usa strings literais
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -226,11 +233,12 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget _buildSubmitButton() {
+  // Recebe l10n como parâmetro
+  Widget _buildSubmitButton(AppLocalizations l10n) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleSubmit,
+        onPressed: _isLoading ? null : () => _handleSubmit(l10n), // Passa l10n para _handleSubmit
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -245,9 +253,9 @@ class _AuthPageState extends State<AuthPage> {
           color: Theme.of(context).colorScheme.onPrimary,
         )
             : Text(
-          _isLogin ? 'Entrar' : 'Criar Conta',
+          _isLogin ? l10n.loginButton : l10n.createAccountButton, // Strings localizadas
           semanticsLabel:
-          _isLogin ? 'Botão de login' : 'Botão para criar conta',
+          _isLogin ? l10n.loginButton : l10n.createAccountButton, // Strings localizadas
           style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 16,
@@ -257,14 +265,14 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget _buildGoogleSignInButton() {
+  Widget _buildGoogleSignInButton(AppLocalizations l10n) {
     return Semantics(
-      label: 'Botão para entrar com o Google',
+      label: l10n.continueWithGoogle,
       button: true,
       child: SizedBox(
         width: double.infinity,
         child: OutlinedButton.icon(
-          onPressed: _isLoading ? null : _handleGoogleSignIn,
+          onPressed: _isLoading ? null : () => _handleGoogleSignIn(l10n), // Passa l10n para _handleGoogleSignIn
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
@@ -280,7 +288,7 @@ class _AuthPageState extends State<AuthPage> {
             size: 24,
           ),
           label: Text(
-            'Continuar com Google',
+            l10n.continueWithGoogle,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w600,
@@ -291,12 +299,13 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget _buildToggleAuthMode() {
+  // Recebe l10n como parâmetro
+  Widget _buildToggleAuthMode(AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          _isLogin ? 'Não tem uma conta? ' : 'Já tem uma conta? ',
+          _isLogin ? l10n.noAccountQuestion : l10n.alreadyHaveAccountQuestion, // Strings localizadas
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context)
                 .colorScheme
@@ -311,9 +320,8 @@ class _AuthPageState extends State<AuthPage> {
             });
           },
           child: Text(
-            _isLogin ? 'Criar conta' : 'Fazer login',
-            semanticsLabel:
-            _isLogin ? 'Alternar para criar conta' : 'Alternar para login',
+            _isLogin ? l10n.createAccountLink : l10n.loginLink, // Strings localizadas
+            semanticsLabel: _isLogin ? l10n.createAccountLink : l10n.loginLink,
             style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.w600,
@@ -324,12 +332,13 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget _buildForgotPassword() {
+  // Recebe l10n como parâmetro
+  Widget _buildForgotPassword(AppLocalizations l10n) {
     return TextButton(
-      onPressed: _handleForgotPassword,
+      onPressed: () => _handleForgotPassword(l10n), // Passa l10n
       child: Text(
-        'Esqueceu sua senha?',
-        semanticsLabel: 'Esqueceu sua senha? Toque para recuperar',
+        l10n.forgotPassword,
+        semanticsLabel: l10n.forgotPassword,// String localizada
         style: TextStyle(
           color: Theme.of(context).colorScheme.primary,
           fontWeight: FontWeight.w500,
@@ -338,7 +347,8 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Future<void> _handleSubmit() async {
+  // Recebe l10n como parâmetro para mensagens de erro/sucesso
+  Future<void> _handleSubmit(AppLocalizations l10n) async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -368,9 +378,10 @@ class _AuthPageState extends State<AuthPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Semantics(
-              liveRegion: true,
-              child: Text(e.toString()),
+            content: Text(
+              _isLogin
+                  ? '${l10n.signInError}${e.toString()}' // String localizada com erro
+                  : '${l10n.signUpError}${e.toString()}', // String localizada com erro
             ),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
@@ -383,8 +394,11 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 
-  Future<void> _handleGoogleSignIn() async {
-    setState(() => _isLoading = true);
+  // Recebe l10n como parâmetro para mensagens de erro
+  Future<void> _handleGoogleSignIn(AppLocalizations l10n) async {
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       final user = await _firebaseService.signInWithGoogle();
@@ -398,10 +412,7 @@ class _AuthPageState extends State<AuthPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Semantics(
-              liveRegion: true,
-              child: Text(e.toString()),
-            ),
+            content: Text('${l10n.googleSignInError}${e.toString()}'), // String localizada com erro
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -413,16 +424,13 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 
-  Future<void> _handleForgotPassword() async {
+  // Recebe l10n como parâmetro para mensagens
+  Future<void> _handleForgotPassword(AppLocalizations l10n) async {
     final email = _emailController.text.trim();
-
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:  Semantics(
-            liveRegion: true,
-            child: Text('Digite seu email para recuperar a senha'),
-          ),
+          content: Text(l10n.enterEmailForPasswordRecovery), // String localizada
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
@@ -434,10 +442,7 @@ class _AuthPageState extends State<AuthPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:  Semantics(
-              liveRegion: true,
-              child: Text('Email de recuperação enviado!'),
-            ),
+            content: Text(l10n.recoveryEmailSent), // String localizada
             backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );
@@ -446,10 +451,7 @@ class _AuthPageState extends State<AuthPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Semantics(
-              liveRegion: true,
-              child: Text(e.toString()),
-            ),
+            content: Text('${l10n.passwordResetError}${e.toString()}'), // String localizada com erro
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );

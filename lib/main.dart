@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
+import 'l10n/app_localizations.dart';
 import 'theme.dart';
 import 'pages/onboarding_page.dart';
 import 'pages/auth_page.dart';
@@ -39,6 +41,22 @@ class FinanceFlowApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.system,
+      localizationsDelegates: const [
+        AppLocalizations.delegate, // O delegado gerado a partir dos seus arquivos .arb
+        GlobalMaterialLocalizations.delegate, // Para widgets do Material Design
+        GlobalWidgetsLocalizations.delegate,  // Para widgets genéricos
+        GlobalCupertinoLocalizations.delegate, // Para widgets do estilo iOS (se usar)
+      ],
+
+      supportedLocales: const [
+        Locale('en'), // Inglês
+        //Locale('es'), // Espanhol
+        Locale('pt'), // Português
+        // Adicione outros Locales que você tiver arquivos .arb
+      ],
+
+      locale: const Locale('en'),
+
       home: const AppWrapper(),
       debugShowCheckedModeBanner: false,
     );

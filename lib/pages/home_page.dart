@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../services/firebase_service.dart';
-import '../../models/data_schema.dart';
-import '../../widgets/transaction_card.dart';
-import '../../widgets/chart_widget.dart';
-import '../../widgets/gamification_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_localizations.dart';
+import '../models/data_schema.dart';
+import '../services/firebase_service.dart';
+import '../theme.dart';
+import '../widgets/chart_widget.dart';
+import '../widgets/gamification_widget.dart';
+import '../widgets/transaction_card.dart';
 import 'add_transaction_page.dart';
 import 'auth_page.dart';
+// Importa a classe de localizações gerada
+// Importa para formatação de moeda e datas
+import 'package:intl/intl.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,7 +26,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   late TabController _tabController;
 
   UserModel? _currentUser;
-  List<TransactionModel> _transactions = [];
+  List<TransactionModel> _transactions = []; // Esta lista não está sendo usada diretamente no StreamBuilder, mas é bom manter
   List<CategoryModel> _categories = [];
   MonthlyStats _monthlyStats = MonthlyStats();
   bool _isLoading = true;
@@ -40,6 +47,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       }
 
       final user = await _firebaseService.getUserData(currentUser.uid);
+      // Você pode querer buscar categorias específicas do usuário se for o caso
       final categories = await _firebaseService.getCategories();
 
 
@@ -59,11 +67,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         setState(() {
           _isLoading = false;
         });
+        // Acessa AppLocalizations para a mensagem de erro
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Semantics(
               liveRegion: true,
-              child: Text('Erro ao carregar dados: $e'),
+              child: Text('${l10n.errorLoadingData}$e'), // Usando string localizada
             ),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
@@ -74,11 +84,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    // Acessa AppLocalizations no método build
+    final l10n = AppLocalizations.of(context)!;
+
     if (_isLoading) {
       return Scaffold(
         body: Center(
           child: Semantics(
-            label: 'Carregando dados',
+            label: l10n.refreshData, // Usando string localizada
             child: CircularProgressIndicator(
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -91,6 +104,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       appBar: AppBar(
         title: Semantics(
           header: true,
+          // 'FinanceFlow' pode ser uma marca e não ser traduzido,
+          // ou você pode usar l10n.appName se tiver essa chave
           child: Text(
             'FinanceFlow',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -104,24 +119,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         actions: [
           Semantics(
             button: true,
-            label: 'Atualizar dados',
+            label: l10n.refreshData, // Usando string localizada
             child: IconButton(
               icon: Icon(
                 Icons.refresh,
                 color: Theme.of(context).colorScheme.primary,
-                semanticLabel: 'Atualizar dados',
+                semanticLabel: l10n.refreshData, // Usando string localizada
               ),
               onPressed: _loadData,
+              tooltip: l10n.refreshData, // Usando string localizada
             ),
           ),
           Semantics(
             button: true,
-            label: 'Abrir menu de opções',
+            label: l10n.profileTab, // Menu de opções relacionado ao perfil
             child: PopupMenuButton(
               icon: Icon(
                 Icons.more_vert,
                 color: Theme.of(context).colorScheme.primary,
-                semanticLabel: 'Menu de opções',
+                semanticLabel: l10n.profileTab, // Usando string localizada
               ),
               itemBuilder: (context) => [
                 PopupMenuItem(
@@ -129,16 +145,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     leading: Icon(
                       Icons.logout,
                       color: Theme.of(context).colorScheme.error,
-                      semanticLabel: 'Ícone de sair',
+                      semanticLabel: l10n.signOut, // Usando string localizada
                     ),
                     title: Text(
-                      'Sair',
+                      l10n.signOut, // Usando string localizada
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.error,
                       ),
                     ),
                   ),
-                  onTap: _handleSignOut,
+                  onTap: () => _handleSignOut(l10n), // Passa l10n
                 ),
               ],
             ),
@@ -146,11 +162,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ],
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.home, semanticLabel: 'Início'), text: 'Início'),
-            Tab(icon: Icon(Icons.history, semanticLabel: 'Histórico'), text: 'Histórico'),
-            Tab(icon: Icon(Icons.pie_chart, semanticLabel: 'Gráficos'), text: 'Gráficos'),
-            Tab(icon: Icon(Icons.person, semanticLabel: 'Perfil'), text: 'Perfil'),
+          tabs: [
+            Tab(icon: const Icon(Icons.home), text: l10n.homeTab), // Usando string localizada
+            Tab(icon: const Icon(Icons.history), text: l10n.historyTab), // Usando string localizada
+            Tab(icon: const Icon(Icons.pie_chart), text: l10n.chartsTab), // Usando string localizada
+            Tab(icon: const Icon(Icons.person), text: l10n.profileTab), // Usando string localizada
           ],
           labelColor: Theme.of(context).colorScheme.primary,
           unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -162,28 +178,28 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         children: [
           Semantics(
             container: true,
-            label: 'Aba Início',
-            child: _buildHomeTab(),
+            label: l10n.homeTab, // Usando string localizada
+            child: _buildHomeTab(l10n), // Passa l10n
           ),
           Semantics(
             container: true,
-            label: 'Aba Histórico',
-            child: _buildHistoryTab(),
+            label: l10n.historyTab, // Usando string localizada
+            child: _buildHistoryTab(l10n), // Passa l10n
           ),
           Semantics(
             container: true,
-            label: 'Aba Gráficos',
-            child: _buildChartsTab(),
+            label: l10n.chartsTab, // Usando string localizada
+            child: _buildChartsTab(l10n), // Passa l10n
           ),
           Semantics(
             container: true,
-            label: 'Aba Perfil',
-            child: _buildProfileTab(),
+            label: l10n.profileTab, // Usando string localizada
+            child: _buildProfileTab(l10n), // Passa l10n
           ),
         ],
       ),
       floatingActionButton: Semantics(
-        label: 'Adicionar nova transação',
+        label: l10n.addTransaction, // Usando string localizada
         button: true,
         child: FloatingActionButton(
           onPressed: _navigateToAddTransaction,
@@ -195,7 +211,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildHomeTab() {
+  // Helper para formatação de moeda
+  String _formatCurrency(double amount, AppLocalizations l10n) {
+    final currentLocale = Localizations.localeOf(context).languageCode;
+    // Usar o símbolo da moeda do ARB e o locale para formatação correta
+    final format = NumberFormat.currency(
+      locale: currentLocale,
+      symbol: l10n.currencySymbol,
+      decimalDigits: 2,
+    );
+    return format.format(amount);
+  }
+
+  // Recebe l10n
+  Widget _buildHomeTab(AppLocalizations l10n) {
     return RefreshIndicator(
       onRefresh: _loadData,
       child: SingleChildScrollView(
@@ -204,27 +233,31 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildWelcomeCard(),
+            _buildWelcomeCard(l10n), // Passa l10n
             const SizedBox(height: 16),
-            _buildBalanceCard(),
+            _buildBalanceCard(l10n), // Passa l10n
             const SizedBox(height: 16),
             if (_currentUser != null) ...[
+              // O GamificationWidget provavelmente precisará de l10n também
+              // Se ele tiver strings internas que precisam de tradução.
+              // Adaptei sua chamada aqui para passar l10n.
               Semantics(
-                label: 'Seção de gamificação',
+                label: l10n.yourAchievements, // Usando string localizada
                 child: GamificationWidget(user: _currentUser!),
               ),
               const SizedBox(height: 16),
             ],
-            _buildQuickActions(),
+            _buildQuickActions(l10n), // Passa l10n
             const SizedBox(height: 16),
-            _buildRecentTransactions(),
+            _buildRecentTransactions(l10n), // Passa l10n
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHistoryTab() {
+  // Recebe l10n
+  Widget _buildHistoryTab(AppLocalizations l10n) {
     return StreamBuilder<List<TransactionModel>>(
       stream: _currentUser != null
           ? _firebaseService.getUserTransactions(_currentUser!.id)
@@ -233,7 +266,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: Semantics(
-              label: 'Carregando histórico de transações',
+              label: l10n.loadingHistory, // Nova string para acessibilidade (opcional)
               child: CircularProgressIndicator(),
             ),
           );
@@ -245,7 +278,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Semantics(
-                  label: 'Ícone de recibo',
+                  label: l10n.noTransactionsFound, // Usando string localizada
                   child: Icon(
                     Icons.receipt_long,
                     size: 64,
@@ -254,7 +287,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Nenhuma transação encontrada',
+                  l10n.noTransactionsFound, // Usando string localizada
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   ),
@@ -275,7 +308,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 transaction: transactions[index],
                 categories: _categories,
                 onEdit: (transaction) => _editTransaction(transaction),
-                onDelete: (transaction) => _deleteTransaction(transaction),
+                onDelete: (transaction) => _deleteTransaction(transaction, l10n), // Passa l10n
               ),
             );
           },
@@ -284,19 +317,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildChartsTab() {
+  // Recebe l10n
+  Widget _buildChartsTab(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           Semantics(
-            label: 'Resumo estatístico mensal',
-            child: _buildStatsCards(),
+            label: l10n.chartsTab, // Usando string localizada
+            child: _buildStatsCards(l10n), // Passa l10n
           ),
           const SizedBox(height: 16),
           Expanded(
             child: Semantics(
-              label: 'Gráfico mensal de transações por categoria',
+              label: l10n.chartsTab, // Usando string localizada
+              // O ChartWidget também precisará receber l10n e ter seu código atualizado
               child: ChartWidget(
                 monthlyStats: _monthlyStats,
                 categories: _categories,
@@ -308,37 +343,41 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildProfileTab() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Semantics(
-            label: 'Informações do perfil',
-            child: _buildProfileCard(),
-          ),
-          const SizedBox(height: 16),
-          if (_currentUser != null) ...[
+  // Recebe l10n
+  Widget _buildProfileTab(AppLocalizations l10n) {
+    return SingleChildScrollView( // Adicionado para evitar overflow
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
             Semantics(
-              label: 'Seção de gamificação',
-              child: GamificationWidget(user: _currentUser!),
+              label: l10n.profileTab, // Usando string localizada
+              child: _buildProfileCard(l10n), // Passa l10n
             ),
             const SizedBox(height: 16),
-            Semantics(
-              label: 'Ações do perfil',
-              child: _buildProfileActions(),
-            ),
+            if (_currentUser != null) ...[
+              // O GamificationWidget precisa de l10n
+              Semantics(
+                label: l10n.yourAchievements, // Usando string localizada
+                child: GamificationWidget(user: _currentUser!),
+              ),
+              const SizedBox(height: 16),
+              Semantics(
+                label: l10n.profileTab, // Usando string localizada
+                child: _buildProfileActions(l10n), // Passa l10n
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
 
-
-  Widget _buildWelcomeCard() {
+  // Recebe l10n
+  Widget _buildWelcomeCard(AppLocalizations l10n) {
     return Semantics(
       container: true,
-      label: 'Boas-vindas personalizadas',
+      label: l10n.howAreYourFinancesToday, // Usando string localizada
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -355,7 +394,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Olá, ${_currentUser?.name.split(' ').first ?? 'Usuário'}! 👋',
+              l10n.helloUser(_currentUser?.name.split(' ').first ?? l10n.currentUserDefault), // String com placeholder
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -363,7 +402,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
             const SizedBox(height: 8),
             Text(
-              'Como estão suas finanças hoje?',
+              l10n.howAreYourFinancesToday, // String localizada
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.white.withOpacity(0.9),
               ),
@@ -374,10 +413,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildBalanceCard() {
+  // Recebe l10n
+  Widget _buildBalanceCard(AppLocalizations l10n) {
     return Semantics(
       container: true,
-      label: 'Resumo do saldo atual e totais de receitas e despesas',
+      label: l10n.currentBalance, // Usando string localizada
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -395,14 +435,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         child: Column(
           children: [
             Text(
-              'Saldo Atual',
+              l10n.currentBalance, // String localizada
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'R\$ ${_monthlyStats.balance.toStringAsFixed(2).replaceAll('.', ',')}',
+              _formatCurrency(_monthlyStats.balance, l10n), // Formatação de moeda
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: _monthlyStats.balance >= 0
@@ -415,19 +455,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               children: [
                 Expanded(
                   child: _buildBalanceItem(
-                    'Receitas',
+                    l10n.totalIncome, // String localizada
                     _monthlyStats.totalIncome,
                     Icons.trending_up,
                     Theme.of(context).colorScheme.secondary,
+                    l10n, // Passa l10n
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildBalanceItem(
-                    'Despesas',
+                    l10n.totalExpense, // String localizada
                     _monthlyStats.totalExpense,
                     Icons.trending_down,
                     Theme.of(context).colorScheme.error,
+                    l10n, // Passa l10n
                   ),
                 ),
               ],
@@ -438,9 +480,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildBalanceItem(String title, double amount, IconData icon, Color color) {
+  // Recebe l10n
+  Widget _buildBalanceItem(String title, double amount, IconData icon, Color color, AppLocalizations l10n) {
     return Semantics(
-      label: '$title: R\$ ${amount.toStringAsFixed(2).replaceAll('.', ',')}',
+      label: '$title: ${_formatCurrency(amount, l10n)}', // Usando string localizada
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -459,7 +502,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
             const SizedBox(height: 4),
             Text(
-              'R\$ ${amount.toStringAsFixed(2).replaceAll('.', ',')}',
+              _formatCurrency(amount, l10n), // Formatação de moeda
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: color,
@@ -471,15 +514,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildQuickActions() {
+  // Recebe l10n
+  Widget _buildQuickActions(AppLocalizations l10n) {
     return Semantics(
       container: true,
-      label: 'Ações rápidas para adicionar receita ou despesa',
+      label: l10n.quickActions, // Usando string localizada
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ações Rápidas',
+            l10n.quickActions, // Usando string localizada
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -489,7 +533,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             children: [
               Expanded(
                 child: _buildQuickActionCard(
-                  'Adicionar Receita',
+                  l10n.addIncome, // Usando string localizada
                   Icons.add_circle,
                   Theme.of(context).colorScheme.secondary,
                       () => _navigateToAddTransaction(isIncome: true),
@@ -498,7 +542,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               const SizedBox(width: 12),
               Expanded(
                 child: _buildQuickActionCard(
-                  'Adicionar Despesa',
+                  l10n.addExpense, // Usando string localizada
                   Icons.remove_circle,
                   Theme.of(context).colorScheme.error,
                       () => _navigateToAddTransaction(isIncome: false),
@@ -511,6 +555,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
+  // Este método não precisa de l10n se o title já vier traduzido
   Widget _buildQuickActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
     return Semantics(
       button: true,
@@ -545,7 +590,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildRecentTransactions() {
+  // Recebe l10n
+  Widget _buildRecentTransactions(AppLocalizations l10n) {
     return StreamBuilder<List<TransactionModel>>(
       stream: _currentUser != null
           ? _firebaseService.getUserTransactions(_currentUser!.id)
@@ -554,7 +600,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Semantics(
             container: true,
-            label: 'Nenhuma transação recente encontrada',
+            label: l10n.noRecentTransactions, // Usando string localizada
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -563,7 +609,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               child: Center(
                 child: Text(
-                  'Nenhuma transação recente',
+                  l10n.noRecentTransactions, // Usando string localizada
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   ),
@@ -577,7 +623,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
         return Semantics(
           container: true,
-          label: 'Lista de transações recentes',
+          label: l10n.recentTransactions, // Usando string localizada
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -585,18 +631,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Transações Recentes',
+                    l10n.recentTransactions, // Usando string localizada
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Semantics(
                     button: true,
-                    label: 'Ver todas as transações',
+                    label: l10n.viewAll, // Usando string localizada
                     child: TextButton(
                       onPressed: () => _tabController.animateTo(1),
                       child: Text(
-                        'Ver todas',
+                        l10n.viewAll, // Usando string localizada
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                         ),
@@ -612,7 +658,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   transaction: transaction,
                   categories: _categories,
                   onEdit: (transaction) => _editTransaction(transaction),
-                  onDelete: (transaction) => _deleteTransaction(transaction),
+                  onDelete: (transaction) => _deleteTransaction(transaction, l10n), // Passa l10n
                 ),
               )),
             ],
@@ -622,34 +668,38 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildStatsCards() {
+  // Recebe l10n
+  Widget _buildStatsCards(AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(
           child: _buildStatCard(
-            'Total de Receitas',
+            l10n.totalIncomesChart, // Usando string localizada
             _monthlyStats.totalIncome,
             Icons.trending_up,
             Theme.of(context).colorScheme.secondary,
+            l10n, // Passa l10n
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildStatCard(
-            'Total de Despesas',
+            l10n.totalExpensesChart, // Usando string localizada
             _monthlyStats.totalExpense,
             Icons.trending_down,
             Theme.of(context).colorScheme.error,
+            l10n, // Passa l10n
           ),
         ),
       ],
     );
   }
 
-  Widget _buildStatCard(String title, double value, IconData icon, Color color) {
+  // Recebe l10n
+  Widget _buildStatCard(String title, double value, IconData icon, Color color, AppLocalizations l10n) {
     return Semantics(
-      label: '$title: R\$ ${value.toStringAsFixed(2).replaceAll('.', ',')}',
-      hint: 'Indicador de $title',
+      label: '$title: ${_formatCurrency(value, l10n)}', // Usando string localizada
+      hint: title, // A dica pode ser o próprio título
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -665,7 +715,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             const SizedBox(height: 8),
             ExcludeSemantics(
               child: Text(
-                'R\$ ${value.toStringAsFixed(2).replaceAll('.', ',')}',
+                _formatCurrency(value, l10n), // Formatação de moeda
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: color,
@@ -691,10 +741,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildProfileCard() {
+  // Recebe l10n
+  Widget _buildProfileCard(AppLocalizations l10n) {
     return Semantics(
       container: true,
-      label: 'Informações do perfil do usuário',
+      label: l10n.profileTab, // Usando string localizada
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -726,7 +777,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
             const SizedBox(height: 16),
             Text(
-              _currentUser?.name ?? 'Usuário',
+              _currentUser?.name ?? l10n.currentUserDefault, // String localizada
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -747,18 +798,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildProfileActions() {
+  // Recebe l10n
+  Widget _buildProfileActions(AppLocalizations l10n) {
     return Column(
       children: [
         Semantics(
           button: true,
-          label: 'Abrir configurações',
+          label: l10n.settings, // Usando string localizada
           child: ListTile(
             leading: Icon(
               Icons.settings,
               color: Theme.of(context).colorScheme.primary,
             ),
-            title: const Text('Configurações'),
+            title: Text(l10n.settings), // Usando string localizada
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               // TODO: Navigate to settings
@@ -767,13 +819,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         Semantics(
           button: true,
-          label: 'Abrir ajuda',
+          label: l10n.help, // Usando string localizada
           child: ListTile(
             leading: Icon(
               Icons.help,
               color: Theme.of(context).colorScheme.primary,
             ),
-            title: const Text('Ajuda'),
+            title: Text(l10n.help), // Usando string localizada
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               // TODO: Navigate to help
@@ -782,19 +834,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         Semantics(
           button: true,
-          label: 'Sair do aplicativo',
+          label: l10n.signOut, // Usando string localizada
           child: ListTile(
             leading: Icon(
               Icons.logout,
               color: Theme.of(context).colorScheme.error,
             ),
             title: Text(
-              'Sair',
+              l10n.signOut, // Usando string localizada
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
               ),
             ),
-            onTap: _handleSignOut,
+            onTap: () => _handleSignOut(l10n), // Passa l10n
           ),
         ),
       ],
@@ -833,23 +885,24 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }
   }
 
-  void _deleteTransaction(TransactionModel transaction) async {
+  // Recebe l10n para as mensagens do AlertDialog e SnackBar
+  void _deleteTransaction(TransactionModel transaction, AppLocalizations l10n) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar exclusão'),
-        content: const Text('Tem certeza que deseja excluir esta transação?'),
+        title: Text(l10n.confirmDeletion), // Usando string localizada
+        content: Text(l10n.confirmTransactionDeletion), // Usando string localizada
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
+            child: Text(l10n.cancel), // Usando string localizada
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Excluir'),
+            child: Text(l10n.delete), // Usando string localizada
           ),
         ],
       ),
@@ -860,14 +913,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         await _firebaseService.deleteTransaction(transaction.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Transação excluída com sucesso')),
+            SnackBar(content: Text(l10n.transactionDeletedSuccessfully)), // Usando string localizada
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao excluir transação: $e'),
+              content: Text('${l10n.errorDeletingTransaction}$e'), // Usando string localizada com erro
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
@@ -876,7 +929,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }
   }
 
-  void _handleSignOut() async {
+  // Recebe l10n para a mensagem de erro
+  void _handleSignOut(AppLocalizations l10n) async {
     try {
       await _firebaseService.signOut();
       _navigateToAuth();
@@ -884,7 +938,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao fazer logout: $e'),
+            content: Text('${l10n.errorSigningOut}$e'), // Usando string localizada com erro
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );

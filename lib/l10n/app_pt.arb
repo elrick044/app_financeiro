@@ -1,0 +1,188 @@
+{
+  "@@locale": "pt",
+  "onboardingTitle1": "Controle Suas Finanças",
+  "onboardingDescription1": "Registre suas receitas e despesas de forma simples e organizada",
+  "onboardingTitle2": "Visualize Seu Progresso",
+  "onboardingDescription2": "Acompanhe seus gastos com gráficos intuitivos e relatórios detalhados",
+  "onboardingTitle3": "Conquiste Suas Metas",
+  "onboardingDescription3": "Ganhe pontos e desbloqueie conquistas mantendo suas finanças em dia",
+  "previousButton": "Anterior",
+  "nextButton": "Próximo",
+  "getStartedButton": "Começar Agora",
+  "welcomeBack": "Bem-vindo de volta!",
+  "createYourAccount": "Crie sua conta",
+  "fullName": "Nome completo",
+  "nameRequired": "Nome é obrigatório",
+  "nameMinLength": "Nome deve ter pelo menos 2 caracteres",
+  "email": "Email",
+  "emailRequired": "Email é obrigatório",
+  "password": "Senha",
+  "passwordRequired": "Senha é obrigatória",
+  "passwordMinLength": "Senha deve ter pelo menos 6 caracteres",
+  "loginButton": "Entrar",
+  "createAccountButton": "Criar Conta",
+  "continueWithGoogle": "Continuar com Google",
+  "noAccountQuestion": "Não tem uma conta? ",
+  "alreadyHaveAccountQuestion": "Já tem uma conta? ",
+  "createAccountLink": "Criar conta",
+  "loginLink": "Fazer login",
+  "forgotPassword": "Esqueceu sua senha?",
+  "enterEmailForPasswordRecovery": "Digite seu email para recuperar a senha",
+  "recoveryEmailSent": "Email de recuperação enviado!",
+  "signInError": "Erro ao fazer login: ",
+  "signUpError": "Erro ao criar conta: ",
+  "googleSignInError": "Erro ao fazer login com Google: ",
+  "passwordResetError": "Erro ao redefinir senha: ",
+  "homeTab": "Início",
+  "historyTab": "Histórico",
+  "chartsTab": "Gráficos",
+  "profileTab": "Perfil",
+  "signOut": "Sair",
+  "errorLoadingData": "Erro ao carregar dados: ",
+  "noTransactionsFound": "Nenhuma transação encontrada",
+  "helloUser": "Olá, {userName}! 👋",
+  "@helloUser": {
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "Erick"
+      }
+    }
+  },
+  "howAreYourFinancesToday": "Como estão suas finanças hoje?",
+  "currentUserDefault": "Usuário",
+  "currentBalance": "Saldo Atual",
+  "totalIncome": "Receitas",
+  "totalExpense": "Despesas",
+  "quickActions": "Ações Rápidas",
+  "addIncome": "Adicionar Receita",
+  "addExpense": "Adicionar Despesa",
+  "noRecentTransactions": "Nenhuma transação recente",
+  "recentTransactions": "Transações Recentes",
+  "viewAll": "Ver todas",
+  "totalIncomesChart": "Total de Receitas",
+  "totalExpensesChart": "Total de Despesas",
+  "settings": "Configurações",
+  "help": "Ajuda",
+  "confirmDeletion": "Confirmar exclusão",
+  "confirmTransactionDeletion": "Tem certeza que deseja excluir esta transação?",
+  "cancel": "Cancelar",
+  "delete": "Excluir",
+  "transactionDeletedSuccessfully": "Transação excluída com sucesso",
+  "errorDeletingTransaction": "Erro ao excluir transação: ",
+  "errorSigningOut": "Erro ao fazer logout: ",
+  "refreshData": "Atualizar Dados",
+  "editTransaction": "Editar Transação",
+  "newTransaction": "Nova Transação",
+  "transactionType": "Tipo de Transação",
+  "income": "Receita",
+  "expense": "Despesa",
+  "amount": "Valor",
+  "amountRequired": "Valor é obrigatório",
+  "enterValidAmount": "Digite um valor válido",
+  "category": "Categoria",
+  "selectCategory": "Selecione uma categoria",
+  "categoryRequired": "Selecione uma categoria",
+  "date": "Data",
+  "descriptionOptional": "Descrição (Opcional)",
+  "enterTransactionDescriptionHint": "Digite uma descrição para esta transação...",
+  "updateTransaction": "Atualizar Transação",
+  "saveTransaction": "Salvar Transação",
+  "userNotFound": "Usuário não encontrado",
+  "transactionUpdatedSuccessfully": "Transação atualizada com sucesso!",
+  "transactionAddedSuccessfully": "Transação adicionada com sucesso!",
+  "errorSavingTransaction": "Erro ao salvar transação: ",
+  "selectColor": "Selecionar Cor",
+  "cancel": "Cancelar",
+  "select": "Selecionar",
+  "expensesTab": "Despesas",
+  "incomeTab": "Receitas",
+  "noExpensesFound": "Nenhuma despesa encontrada",
+  "noIncomeFound": "Nenhuma receita encontrada",
+  "totalAmount": "Total: {currencySymbol} {totalValue}",
+  "@totalAmount": {
+    "placeholders": {
+      "currencySymbol": {
+        "type": "String",
+        "example": "R$"
+      },
+      "totalValue": {
+        "type": "String",
+        "example": "123.45"
+      }
+    }
+  },
+  "yourAchievements": "Suas Conquistas",
+  "keepGoingToUnlockMore": "Continue assim para desbloquear mais!",
+  "totalPoints": "Pontos Totais",
+  "level": "Nível {levelNumber}",
+  "@level": {
+    "placeholders": {
+      "levelNumber": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "unlockedAchievements": "Conquistas Desbloqueadas",
+  "noAchievementsYet": "Continue registrando suas transações para desbloquear conquistas!",
+  "achievementFirstTransactionName": "Primeira Transação",
+  "achievementFirstTransactionDescription": "Registrou sua primeira transação",
+  "achievementBudgetKeeperName": "Controlador",
+  "achievementBudgetKeeperDescription": "Não ultrapassou o orçamento mensal",
+  "achievementConsistentUserName": "Consistente",
+  "achievementConsistentUserDescription": "Registrou transações por 7 dias seguidos",
+  "achievementSaverName": "Poupador",
+  "achievementSaverDescription": "Teve mais receitas que despesas no mês",
+  "today": "Hoje",
+  "yesterday": "Ontem",
+  "incomeTypeLabel": "Receita",
+  "expenseTypeLabel": "Despesa",
+  "editAction": "Editar",
+  "deleteAction": "Excluir",
+  "addTransaction": "Adicionar Transação",
+  "currencySymbol": "R$",
+  "loadingHistory": "Carregando histórico de transações",
+  "backButtonLabel": "Voltar",
+  "selectDate": "Selecionar data",
+  "levelInfo": "Você está no nível {levelNumber} com {currentPoints} pontos. Faltam {pointsToNextLevel} para o próximo nível.",
+  "@levelInfo": {
+    "placeholders": {
+      "levelNumber": { "type": "int" },
+      "currentPoints": { "type": "int" },
+      "pointsToNextLevel": { "type": "int" }
+    }
+  },
+  "levelProgressInfo": "Progresso de {progress}% para o nível {levelNumber}",
+  "@levelProgressInfo": {
+    "placeholders": {
+      "progress": { "type": "String" },
+      "levelNumber": { "type": "int" }
+    }
+  },
+  "achievementUnlockedStatus": "{name}. {description}. Desbloqueada.",
+  "@achievementUnlockedStatus": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "description": { "type": "String" }
+    }
+  },
+  "achievementLockedStatus": "{name}. {description}. Bloqueada.",
+  "@achievementLockedStatus": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "description": { "type": "String" }
+    }
+  },
+  "transactionCardSemanticLabel": "{categoryName}, {description}{date}, {typeLabel} de {amount}",
+  "@transactionCardSemanticLabel": {
+    "placeholders": {
+      "categoryName": { "type": "String" },
+      "description": { "type": "String" },
+      "date": { "type": "String" },
+      "typeLabel": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "moreOptions": "Mais opções"
+}
