@@ -59,7 +59,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao carregar dados: $e'),
+            content: Semantics(
+              liveRegion: true,
+              child: Text('Erro ao carregar dados: $e'),
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -72,8 +75,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     if (_isLoading) {
       return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(
-            color: Theme.of(context).colorScheme.primary,
+          child: Semantics(
+            label: 'Carregando dados',
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ),
       );
@@ -81,54 +87,68 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'FinanceFlow',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
+        title: Semantics(
+          header: true,
+          child: Text(
+            'FinanceFlow',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: Icon(
-              Icons.refresh,
-              color: Theme.of(context).colorScheme.primary,
+          Semantics(
+            button: true,
+            label: 'Atualizar dados',
+            child: IconButton(
+              icon: Icon(
+                Icons.refresh,
+                color: Theme.of(context).colorScheme.primary,
+                semanticLabel: 'Atualizar dados',
+              ),
+              onPressed: _loadData,
             ),
-            onPressed: _loadData,
           ),
-          PopupMenuButton(
-            icon: Icon(
-              Icons.more_vert,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                child: ListTile(
-                  leading: Icon(
-                    Icons.logout,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  title: Text(
-                    'Sair',
-                    style: TextStyle(
+          Semantics(
+            button: true,
+            label: 'Abrir menu de opções',
+            child: PopupMenuButton(
+              icon: Icon(
+                Icons.more_vert,
+                color: Theme.of(context).colorScheme.primary,
+                semanticLabel: 'Menu de opções',
+              ),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.logout,
                       color: Theme.of(context).colorScheme.error,
+                      semanticLabel: 'Ícone de sair',
+                    ),
+                    title: Text(
+                      'Sair',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
+                  onTap: _handleSignOut,
                 ),
-                onTap: _handleSignOut,
-              ),
-            ],
+              ],
+            ),
           ),
         ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(icon: Icon(Icons.home), text: 'Início'),
-            Tab(icon: Icon(Icons.history), text: 'Histórico'),
-            Tab(icon: Icon(Icons.pie_chart), text: 'Gráficos'),
-            Tab(icon: Icon(Icons.person), text: 'Perfil'),
+            Tab(icon: Icon(Icons.home, semanticLabel: 'Início'), text: 'Início'),
+            Tab(icon: Icon(Icons.history, semanticLabel: 'Histórico'), text: 'Histórico'),
+            Tab(icon: Icon(Icons.pie_chart, semanticLabel: 'Gráficos'), text: 'Gráficos'),
+            Tab(icon: Icon(Icons.person, semanticLabel: 'Perfil'), text: 'Perfil'),
           ],
           labelColor: Theme.of(context).colorScheme.primary,
           unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -138,17 +158,37 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildHomeTab(),
-          _buildHistoryTab(),
-          _buildChartsTab(),
-          _buildProfileTab(),
+          Semantics(
+            container: true,
+            label: 'Aba Início',
+            child: _buildHomeTab(),
+          ),
+          Semantics(
+            container: true,
+            label: 'Aba Histórico',
+            child: _buildHistoryTab(),
+          ),
+          Semantics(
+            container: true,
+            label: 'Aba Gráficos',
+            child: _buildChartsTab(),
+          ),
+          Semantics(
+            container: true,
+            label: 'Aba Perfil',
+            child: _buildProfileTab(),
+          ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToAddTransaction,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        child: const Icon(Icons.add),
+      floatingActionButton: Semantics(
+        label: 'Adicionar nova transação',
+        button: true,
+        child: FloatingActionButton(
+          onPressed: _navigateToAddTransaction,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }
@@ -167,7 +207,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             _buildBalanceCard(),
             const SizedBox(height: 16),
             if (_currentUser != null) ...[
-              GamificationWidget(user: _currentUser!),
+              Semantics(
+                label: 'Seção de gamificação',
+                child: GamificationWidget(user: _currentUser!),
+              ),
               const SizedBox(height: 16),
             ],
             _buildQuickActions(),
@@ -186,7 +229,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           : const Stream.empty(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: Semantics(
+              label: 'Carregando histórico de transações',
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -194,10 +242,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.receipt_long,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                Semantics(
+                  label: 'Ícone de recibo',
+                  child: Icon(
+                    Icons.receipt_long,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -236,12 +287,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          _buildStatsCards(),
+          Semantics(
+            label: 'Resumo estatístico mensal',
+            child: _buildStatsCards(),
+          ),
           const SizedBox(height: 16),
           Expanded(
-            child: ChartWidget(
-              monthlyStats: _monthlyStats,
-              categories: _categories,
+            child: Semantics(
+              label: 'Gráfico mensal de transações por categoria',
+              child: ChartWidget(
+                monthlyStats: _monthlyStats,
+                categories: _categories,
+              ),
             ),
           ),
         ],
@@ -254,104 +311,194 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          _buildProfileCard(),
+          Semantics(
+            label: 'Informações do perfil',
+            child: _buildProfileCard(),
+          ),
           const SizedBox(height: 16),
           if (_currentUser != null) ...[
-            GamificationWidget(user: _currentUser!),
+            Semantics(
+              label: 'Seção de gamificação',
+              child: GamificationWidget(user: _currentUser!),
+            ),
             const SizedBox(height: 16),
           ],
-          _buildProfileActions(),
+          Semantics(
+            label: 'Ações do perfil',
+            child: _buildProfileActions(),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildWelcomeCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.secondary,
+    return Semantics(
+      container: true,
+      label: 'Boas-vindas personalizadas',
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.secondary,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Olá, ${_currentUser?.name.split(' ').first ?? 'Usuário'}! 👋',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Como estão suas finanças hoje?',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.white.withOpacity(0.9),
+              ),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Olá, ${_currentUser?.name.split(' ').first ?? 'Usuário'}! 👋',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Como estão suas finanças hoje?',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withOpacity(0.9),
-            ),
-          ),
-        ],
       ),
     );
   }
 
   Widget _buildBalanceCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+    return Semantics(
+      container: true,
+      label: 'Resumo do saldo atual e totais de receitas e despesas',
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Text(
+              'Saldo Atual',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'R\$ ${_monthlyStats.balance.toStringAsFixed(2).replaceAll('.', ',')}',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: _monthlyStats.balance >= 0
+                    ? Theme.of(context).colorScheme.secondary
+                    : Theme.of(context).colorScheme.error,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildBalanceItem(
+                    'Receitas',
+                    _monthlyStats.totalIncome,
+                    Icons.trending_up,
+                    Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildBalanceItem(
+                    'Despesas',
+                    _monthlyStats.totalExpense,
+                    Icons.trending_down,
+                    Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildBalanceItem(String title, double amount, IconData icon, Color color) {
+    return Semantics(
+      label: '$title: R\$ ${amount.toStringAsFixed(2).replaceAll('.', ',')}',
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'R\$ ${amount.toStringAsFixed(2).replaceAll('.', ',')}',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActions() {
+    return Semantics(
+      container: true,
+      label: 'Ações rápidas para adicionar receita ou despesa',
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Saldo Atual',
+            'Ações Rápidas',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'R\$ ${_monthlyStats.balance.toStringAsFixed(2).replaceAll('.', ',')}',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: _monthlyStats.balance >= 0
-                  ? Theme.of(context).colorScheme.secondary
-                  : Theme.of(context).colorScheme.error,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
-                child: _buildBalanceItem(
-                  'Receitas',
-                  _monthlyStats.totalIncome,
-                  Icons.trending_up,
+                child: _buildQuickActionCard(
+                  'Adicionar Receita',
+                  Icons.add_circle,
                   Theme.of(context).colorScheme.secondary,
+                      () => _navigateToAddTransaction(isIncome: true),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
-                child: _buildBalanceItem(
-                  'Despesas',
-                  _monthlyStats.totalExpense,
-                  Icons.trending_down,
+                child: _buildQuickActionCard(
+                  'Adicionar Despesa',
+                  Icons.remove_circle,
                   Theme.of(context).colorScheme.error,
+                      () => _navigateToAddTransaction(isIncome: false),
                 ),
               ),
             ],
@@ -361,97 +508,35 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildBalanceItem(String title, double amount, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'R\$ ${amount.toStringAsFixed(2).replaceAll('.', ',')}',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActions() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Ações Rápidas',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildQuickActionCard(
-                'Adicionar Receita',
-                Icons.add_circle,
-                Theme.of(context).colorScheme.secondary,
-                    () => _navigateToAddTransaction(isIncome: true),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildQuickActionCard(
-                'Adicionar Despesa',
-                Icons.remove_circle,
-                Theme.of(context).colorScheme.error,
-                    () => _navigateToAddTransaction(isIncome: false),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
   Widget _buildQuickActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withOpacity(0.3),
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
+    return Semantics(
+      button: true,
+      label: title,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: color.withOpacity(0.3),
             ),
-          ],
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 32),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -464,17 +549,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           : const Stream.empty(),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(
-              child: Text(
-                'Nenhuma transação recente',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+          return Semantics(
+            container: true,
+            label: 'Nenhuma transação recente encontrada',
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Text(
+                  'Nenhuma transação recente',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  ),
                 ),
               ),
             ),
@@ -483,40 +572,48 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
         final recentTransactions = snapshot.data!.take(3).toList();
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Transações Recentes',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => _tabController.animateTo(1),
-                  child: Text(
-                    'Ver todas',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
+        return Semantics(
+          container: true,
+          label: 'Lista de transações recentes',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Transações Recentes',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            ...recentTransactions.map((transaction) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: TransactionCard(
-                transaction: transaction,
-                categories: _categories,
-                onEdit: (transaction) => _editTransaction(transaction),
-                onDelete: (transaction) => _deleteTransaction(transaction),
+                  Semantics(
+                    button: true,
+                    label: 'Ver todas as transações',
+                    child: TextButton(
+                      onPressed: () => _tabController.animateTo(1),
+                      child: Text(
+                        'Ver todas',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            )),
-          ],
+              const SizedBox(height: 8),
+              ...recentTransactions.map((transaction) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: TransactionCard(
+                  transaction: transaction,
+                  categories: _categories,
+                  onEdit: (transaction) => _editTransaction(transaction),
+                  onDelete: (transaction) => _deleteTransaction(transaction),
+                ),
+              )),
+            ],
+          ),
         );
       },
     );
@@ -547,77 +644,102 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildStatCard(String title, double value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(height: 8),
-          Text(
-            'R\$ ${value.toStringAsFixed(2).replaceAll('.', ',')}',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: color,
+    return Semantics(
+      label: '$title: R\$ ${value.toStringAsFixed(2).replaceAll('.', ',')}',
+      hint: 'Indicador de $title',
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Tooltip(
+              message: title,
+              child: Icon(icon, color: color, size: 32),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            const SizedBox(height: 8),
+            ExcludeSemantics(
+              child: Text(
+                'R\$ ${value.toStringAsFixed(2).replaceAll('.', ',')}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: 4),
+            ExcludeSemantics(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withOpacity(0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildProfileCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-            child: Icon(
-              Icons.person,
-              size: 40,
-              color: Theme.of(context).colorScheme.primary,
+    return Semantics(
+      container: true,
+      label: 'Informações do perfil do usuário',
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _currentUser?.name ?? 'Usuário',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
+          ],
+        ),
+        child: Column(
+          children: [
+            Semantics(
+              label: 'Avatar do usuário',
+              child: CircleAvatar(
+                radius: 40,
+                backgroundColor:
+                Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                child: Icon(
+                  Icons.person,
+                  size: 40,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            _currentUser?.email ?? '',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            const SizedBox(height: 16),
+            Text(
+              _currentUser?.name ?? 'Usuário',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              _currentUser?.email ?? '',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withOpacity(0.7),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -625,40 +747,52 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget _buildProfileActions() {
     return Column(
       children: [
-        ListTile(
-          leading: Icon(
-            Icons.settings,
-            color: Theme.of(context).colorScheme.primary,
+        Semantics(
+          button: true,
+          label: 'Abrir configurações',
+          child: ListTile(
+            leading: Icon(
+              Icons.settings,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            title: const Text('Configurações'),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              // TODO: Navigate to settings
+            },
           ),
-          title: const Text('Configurações'),
-          trailing: const Icon(Icons.arrow_forward_ios),
-          onTap: () {
-            // TODO: Navigate to settings
-          },
         ),
-        ListTile(
-          leading: Icon(
-            Icons.help,
-            color: Theme.of(context).colorScheme.primary,
+        Semantics(
+          button: true,
+          label: 'Abrir ajuda',
+          child: ListTile(
+            leading: Icon(
+              Icons.help,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            title: const Text('Ajuda'),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              // TODO: Navigate to help
+            },
           ),
-          title: const Text('Ajuda'),
-          trailing: const Icon(Icons.arrow_forward_ios),
-          onTap: () {
-            // TODO: Navigate to help
-          },
         ),
-        ListTile(
-          leading: Icon(
-            Icons.logout,
-            color: Theme.of(context).colorScheme.error,
-          ),
-          title: Text(
-            'Sair',
-            style: TextStyle(
+        Semantics(
+          button: true,
+          label: 'Sair do aplicativo',
+          child: ListTile(
+            leading: Icon(
+              Icons.logout,
               color: Theme.of(context).colorScheme.error,
             ),
+            title: Text(
+              'Sair',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+            onTap: _handleSignOut,
           ),
-          onTap: _handleSignOut,
         ),
       ],
     );

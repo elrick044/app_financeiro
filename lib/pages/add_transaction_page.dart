@@ -38,20 +38,16 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
   void _initializeForm() {
     if (widget.transaction != null) {
-      // Editing existing transaction
       final transaction = widget.transaction!;
       _amountController.text = transaction.amount.toStringAsFixed(2).replaceAll('.', ',');
       _descriptionController.text = transaction.description;
       _selectedType = transaction.type;
       _selectedDate = transaction.date;
-
-      // Find the category
       _selectedCategory = widget.categories.firstWhere(
             (category) => category.name == transaction.category,
         orElse: () => widget.categories.first,
       );
     } else if (widget.initialType != null) {
-      // Initial type provided
       _selectedType = widget.initialType!;
     }
   }
@@ -62,42 +58,49 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          isEditing ? 'Editar Transação' : 'Nova Transação',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.bold,
+        title: Semantics(
+          header: true,
+          child: Text(
+            isEditing ? 'Editar Transação' : 'Nova Transação',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
+        leading: Semantics(
+          button: true,
+          label: 'Voltar',
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
             color: Theme.of(context).colorScheme.onSurface,
+            onPressed: () => Navigator.of(context).pop(),
           ),
-          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: Form(
         key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTypeSelector(),
-              const SizedBox(height: 24),
-              _buildAmountField(),
-              const SizedBox(height: 24),
-              _buildCategorySelector(),
-              const SizedBox(height: 24),
-              _buildDateSelector(),
-              const SizedBox(height: 24),
-              _buildDescriptionField(),
-              const SizedBox(height: 32),
-              _buildSaveButton(isEditing),
-            ],
+        child: FocusTraversalGroup(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTypeSelector(),
+                const SizedBox(height: 24),
+                _buildAmountField(),
+                const SizedBox(height: 24),
+                _buildCategorySelector(),
+                const SizedBox(height: 24),
+                _buildDateSelector(),
+                const SizedBox(height: 24),
+                _buildDescriptionField(),
+                const SizedBox(height: 32),
+                _buildSaveButton(isEditing),
+              ],
+            ),
           ),
         ),
       ),
@@ -144,40 +147,41 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   Widget _buildTypeButton(TransactionType type, String label, IconData icon, Color color) {
     final isSelected = _selectedType == type;
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedType = type;
-          _selectedCategory = null; // Reset category when type changes
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? color : Theme.of(context).colorScheme.outline.withOpacity(0.5),
-            width: isSelected ? 2 : 1,
+    return Semantics(
+      selected: isSelected,
+      button: true,
+      label: label,
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedType = type;
+            _selectedCategory = null;
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withOpacity(0.1) : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? color : Theme.of(context).colorScheme.outline.withOpacity(0.5),
+              width: isSelected ? 2 : 1,
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? color : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-              size: 32,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: isSelected ? color : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          child: Column(
+            children: [
+              Icon(icon, color: isSelected ? color : Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 32),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: isSelected ? color : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -198,10 +202,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         TextFormField(
           controller: _amountController,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.next,
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
           ],
           decoration: InputDecoration(
+            labelText: 'Valor',
             prefixText: 'R\$ ',
             prefixStyle: TextStyle(
               color: Theme.of(context).colorScheme.primary,
@@ -209,42 +215,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               fontWeight: FontWeight.bold,
             ),
             hintText: '0,00',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              ),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
             fillColor: Theme.of(context).colorScheme.surface,
           ),
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Valor é obrigatório';
-            }
-
+            if (value == null || value.trim().isEmpty) return 'Valor é obrigatório';
             final amount = double.tryParse(value.replaceAll(',', '.'));
-            if (amount == null || amount <= 0) {
-              return 'Digite um valor válido';
-            }
-
+            if (amount == null || amount <= 0) return 'Digite um valor válido';
             return null;
           },
         ),
@@ -268,50 +247,32 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           ),
         ),
         const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
-            ),
-            borderRadius: BorderRadius.circular(12),
+        DropdownButtonFormField<CategoryModel>(
+          value: _selectedCategory?.type == _selectedType ? _selectedCategory : null,
+          decoration: InputDecoration(
+            labelText: 'Selecione uma categoria',
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.surface,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: DropdownButtonFormField<CategoryModel>(
-            value: _selectedCategory?.type == _selectedType ? _selectedCategory : null,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              hintText: 'Selecione uma categoria',
-              filled: true,
-              fillColor: Theme.of(context).colorScheme.surface,
-            ),
-            items: filteredCategories.map((category) {
-              return DropdownMenuItem<CategoryModel>(
-                value: category,
-                child: Row(
-                  children: [
-                    Icon(
-                      _getIconData(category.icon),
-                      color: Color(int.parse(category.color)),
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(category.name),
-                  ],
-                ),
-              );
-            }).toList(),
-            onChanged: (category) {
-              setState(() {
-                _selectedCategory = category;
-              });
-            },
-            validator: (value) {
-              if (value == null) {
-                return 'Selecione uma categoria';
-              }
-              return null;
-            },
-          ),
+          items: filteredCategories.map((category) {
+            return DropdownMenuItem<CategoryModel>(
+              value: category,
+              child: Row(
+                children: [
+                  Icon(_getIconData(category.icon), color: Color(int.parse(category.color)), size: 20),
+                  const SizedBox(width: 12),
+                  Text(category.name),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: (category) {
+            setState(() {
+              _selectedCategory = category;
+            });
+          },
+          validator: (value) => value == null ? 'Selecione uma categoria' : null,
         ),
       ],
     );
@@ -329,35 +290,31 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           ),
         ),
         const SizedBox(height: 12),
-        GestureDetector(
-          onTap: _selectDate,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+        Semantics(
+          button: true,
+          label: 'Selecionar data',
+          child: GestureDetector(
+            onTap: _selectDate,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.5)),
+                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(context).colorScheme.surface,
               ),
-              borderRadius: BorderRadius.circular(12),
-              color: Theme.of(context).colorScheme.surface,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  '${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const Spacer(),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                ),
-              ],
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Text(
+                    '${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  const Spacer(),
+                  Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                ],
+              ),
             ),
           ),
         ),
@@ -380,29 +337,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         TextFormField(
           controller: _descriptionController,
           maxLines: 3,
+          textInputAction: TextInputAction.done,
           decoration: InputDecoration(
             hintText: 'Digite uma descrição para esta transação...',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              ),
-            ),
+            labelText: 'Descrição',
             filled: true,
             fillColor: Theme.of(context).colorScheme.surface,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       ],
@@ -410,33 +351,32 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   }
 
   Widget _buildSaveButton(bool isEditing) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleSave,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return Semantics(
+      button: true,
+      label: isEditing ? 'Atualizar transação' : 'Salvar transação',
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: _isLoading ? null : _handleSave,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 0,
           ),
-          elevation: 0,
-        ),
-        child: _isLoading
-            ? SizedBox(
-          height: 20,
-          width: 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
-        )
-            : Text(
-          isEditing ? 'Atualizar Transação' : 'Salvar Transação',
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
+          child: _isLoading
+              ? SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+          )
+              : Text(
+            isEditing ? 'Atualizar Transação' : 'Salvar Transação',
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           ),
         ),
       ),
@@ -477,15 +417,12 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
     try {
       final currentUser = _firebaseService.currentUser;
-      if (currentUser == null) {
-        throw 'Usuário não encontrado';
-      }
+      if (currentUser == null) throw 'Usuário não encontrado';
 
       final amount = double.parse(_amountController.text.replaceAll(',', '.'));
       final description = _descriptionController.text.trim();
 
       if (widget.transaction != null) {
-        // Update existing transaction
         final updatedTransaction = widget.transaction!.copyWith(
           amount: amount,
           type: _selectedType,
@@ -496,9 +433,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
         await _firebaseService.updateTransaction(updatedTransaction);
       } else {
-        // Create new transaction
         final transaction = TransactionModel(
-          id: '', // Will be set by Firestore
+          id: '',
           userId: currentUser.uid,
           amount: amount,
           type: _selectedType,
@@ -511,17 +447,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         await _firebaseService.addTransaction(transaction);
       }
 
-      // Check for achievements
       await _firebaseService.checkAndAwardAchievements(currentUser.uid);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              widget.transaction != null
-                  ? 'Transação atualizada com sucesso!'
-                  : 'Transação adicionada com sucesso!',
-            ),
+            content: Text(widget.transaction != null
+                ? 'Transação atualizada com sucesso!'
+                : 'Transação adicionada com sucesso!'),
             backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );

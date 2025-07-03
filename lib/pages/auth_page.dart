@@ -39,21 +39,23 @@ class _AuthPageState extends State<AuthPage> {
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  const SizedBox(height: 40),
-                  _buildHeader(),
-                  const SizedBox(height: 48),
-                  _buildAuthForm(),
-                  const SizedBox(height: 24),
-                  _buildGoogleSignInButton(),
-                  const SizedBox(height: 24),
-                  _buildToggleAuthMode(),
-                  if (!_isLogin) ...[
-                    const SizedBox(height: 16),
-                    _buildForgotPassword(),
+              child: FocusTraversalGroup(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    _buildHeader(),
+                    const SizedBox(height: 48),
+                    _buildAuthForm(),
+                    const SizedBox(height: 24),
+                    _buildGoogleSignInButton(),
+                    const SizedBox(height: 24),
+                    _buildToggleAuthMode(),
+                    if (!_isLogin) ...[
+                      const SizedBox(height: 16),
+                      _buildForgotPassword(),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -65,17 +67,21 @@ class _AuthPageState extends State<AuthPage> {
   Widget _buildHeader() {
     return Column(
       children: [
-        Container(
-          height: 100,
-          width: 100,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.account_balance_wallet,
-            size: 50,
-            color: Theme.of(context).colorScheme.primary,
+        Semantics(
+          label: 'Logo da carteira FinanceFlow',
+          image: true,
+          child: Container(
+            height: 100,
+            width: 100,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.account_balance_wallet,
+              size: 50,
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ),
         const SizedBox(height: 24),
@@ -107,6 +113,8 @@ class _AuthPageState extends State<AuthPage> {
               controller: _nameController,
               label: 'Nome completo',
               icon: Icons.person,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.name],
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Nome é obrigatório';
@@ -124,6 +132,8 @@ class _AuthPageState extends State<AuthPage> {
             label: 'Email',
             icon: Icons.email,
             keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.email],
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Email é obrigatório';
@@ -137,9 +147,13 @@ class _AuthPageState extends State<AuthPage> {
             label: 'Senha',
             icon: Icons.lock,
             obscureText: _obscurePassword,
+            textInputAction: TextInputAction.done,
+            autofillHints: const [AutofillHints.password],
             suffixIcon: IconButton(
               icon: Icon(
                 _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                semanticLabel:
+                _obscurePassword ? 'Mostrar senha' : 'Ocultar senha',
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               ),
               onPressed: () {
@@ -173,12 +187,16 @@ class _AuthPageState extends State<AuthPage> {
     bool obscureText = false,
     Widget? suffixIcon,
     String? Function(String?)? validator,
+    List<String>? autofillHints,
+    TextInputAction? textInputAction,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
       validator: validator,
+      autofillHints: autofillHints,
+      textInputAction: textInputAction,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(
@@ -188,9 +206,6 @@ class _AuthPageState extends State<AuthPage> {
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.outline,
-          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -223,19 +238,16 @@ class _AuthPageState extends State<AuthPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          elevation: 0,
         ),
         child: _isLoading
-            ? SizedBox(
-          height: 20,
-          width: 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
+            ? CircularProgressIndicator(
+          strokeWidth: 2,
+          color: Theme.of(context).colorScheme.onPrimary,
         )
             : Text(
           _isLogin ? 'Entrar' : 'Criar Conta',
+          semanticsLabel:
+          _isLogin ? 'Botão de login' : 'Botão para criar conta',
           style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 16,
@@ -246,29 +258,33 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Widget _buildGoogleSignInButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: _isLoading ? null : _handleGoogleSignIn,
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return Semantics(
+      label: 'Botão para entrar com o Google',
+      button: true,
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: _isLoading ? null : _handleGoogleSignIn,
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.outline,
+            ),
           ),
-          side: BorderSide(
-            color: Theme.of(context).colorScheme.outline,
+          icon: Icon(
+            Icons.g_mobiledata,
+            color: Theme.of(context).colorScheme.primary,
+            size: 24,
           ),
-        ),
-        icon: Icon(
-          Icons.g_mobiledata,
-          color: Theme.of(context).colorScheme.primary,
-          size: 24,
-        ),
-        label: Text(
-          'Continuar com Google',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
+          label: Text(
+            'Continuar com Google',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),
@@ -282,7 +298,10 @@ class _AuthPageState extends State<AuthPage> {
         Text(
           _isLogin ? 'Não tem uma conta? ' : 'Já tem uma conta? ',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            color: Theme.of(context)
+                .colorScheme
+                .onSurface
+                .withOpacity(0.7),
           ),
         ),
         TextButton(
@@ -293,6 +312,8 @@ class _AuthPageState extends State<AuthPage> {
           },
           child: Text(
             _isLogin ? 'Criar conta' : 'Fazer login',
+            semanticsLabel:
+            _isLogin ? 'Alternar para criar conta' : 'Alternar para login',
             style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.w600,
@@ -308,6 +329,7 @@ class _AuthPageState extends State<AuthPage> {
       onPressed: _handleForgotPassword,
       child: Text(
         'Esqueceu sua senha?',
+        semanticsLabel: 'Esqueceu sua senha? Toque para recuperar',
         style: TextStyle(
           color: Theme.of(context).colorScheme.primary,
           fontWeight: FontWeight.w500,
@@ -319,9 +341,7 @@ class _AuthPageState extends State<AuthPage> {
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       UserModel? user;
@@ -341,68 +361,68 @@ class _AuthPageState extends State<AuthPage> {
 
       if (user != null && mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const HomePage(),
-          ),
+          MaterialPageRoute(builder: (_) => const HomePage()),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Semantics(
+              liveRegion: true,
+              child: Text(e.toString()),
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
   }
 
   Future<void> _handleGoogleSignIn() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       final user = await _firebaseService.signInWithGoogle();
 
       if (user != null && mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const HomePage(),
-          ),
+          MaterialPageRoute(builder: (_) => const HomePage()),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Semantics(
+              liveRegion: true,
+              child: Text(e.toString()),
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
   }
 
   Future<void> _handleForgotPassword() async {
     final email = _emailController.text.trim();
+
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Digite seu email para recuperar a senha'),
+          content:  Semantics(
+            liveRegion: true,
+            child: Text('Digite seu email para recuperar a senha'),
+          ),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
@@ -414,7 +434,10 @@ class _AuthPageState extends State<AuthPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Email de recuperação enviado!'),
+            content:  Semantics(
+              liveRegion: true,
+              child: Text('Email de recuperação enviado!'),
+            ),
             backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );
@@ -423,7 +446,10 @@ class _AuthPageState extends State<AuthPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Semantics(
+              liveRegion: true,
+              child: Text(e.toString()),
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );

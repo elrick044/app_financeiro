@@ -33,33 +33,42 @@ class TransactionCard extends StatelessWidget {
         ? Theme.of(context).colorScheme.secondary
         : Theme.of(context).colorScheme.error;
 
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+    final formattedAmount =
+        'R\$ ${transaction.amount.toStringAsFixed(2).replaceAll('.', ',')}';
+    final prefix = isIncome ? '+' : '-';
+
+    return Semantics(
+      label:
+      '${category.name}, ${transaction.description.isNotEmpty ? transaction.description + ', ' : ''}${_formatDate(transaction.date)}, ${isIncome ? 'Receita' : 'Despesa'} de $prefix$formattedAmount',
+      button: onEdit != null,
+      child: Card(
+        elevation: 0,
+        color: Theme.of(context).colorScheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          ),
         ),
-      ),
-      child: InkWell(
-        onTap: onEdit != null ? () => onEdit!(transaction) : null,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              _buildCategoryIcon(category),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildTransactionInfo(context, category),
-              ),
-              _buildAmount(context, amountColor),
-              if (onEdit != null || onDelete != null) ...[
-                const SizedBox(width: 8),
-                _buildActionsMenu(context),
+        child: InkWell(
+          onTap: onEdit != null ? () => onEdit!(transaction) : null,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                _buildCategoryIcon(category),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildTransactionInfo(context, category),
+                ),
+                _buildAmount(context, amountColor),
+                if (onEdit != null || onDelete != null) ...[
+                  const SizedBox(width: 8),
+                  _buildActionsMenu(context),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -67,17 +76,19 @@ class TransactionCard extends StatelessWidget {
   }
 
   Widget _buildCategoryIcon(CategoryModel category) {
-    return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: Color(int.parse(category.color)).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Icon(
-        _getIconData(category.icon),
-        color: Color(int.parse(category.color)),
-        size: 24,
+    return ExcludeSemantics(
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: Color(int.parse(category.color)).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          _getIconData(category.icon),
+          color: Color(int.parse(category.color)),
+          size: 24,
+        ),
       ),
     );
   }
@@ -97,7 +108,10 @@ class TransactionCard extends StatelessWidget {
           Text(
             transaction.description,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withOpacity(0.7),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -107,7 +121,8 @@ class TransactionCard extends StatelessWidget {
         Text(
           _formatDate(transaction.date),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            color:
+            Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
           ),
         ),
       ],
@@ -115,7 +130,8 @@ class TransactionCard extends StatelessWidget {
   }
 
   Widget _buildAmount(BuildContext context, Color amountColor) {
-    final formattedAmount = 'R\$ ${transaction.amount.toStringAsFixed(2).replaceAll('.', ',')}';
+    final formattedAmount =
+        'R\$ ${transaction.amount.toStringAsFixed(2).replaceAll('.', ',')}';
     final prefix = transaction.type == TransactionType.income ? '+' : '-';
 
     return Column(
@@ -129,18 +145,20 @@ class TransactionCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: amountColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            transaction.type == TransactionType.income ? 'Receita' : 'Despesa',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: amountColor,
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
+        ExcludeSemantics(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: amountColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              transaction.type == TransactionType.income ? 'Receita' : 'Despesa',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: amountColor,
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
@@ -149,59 +167,63 @@ class TransactionCard extends StatelessWidget {
   }
 
   Widget _buildActionsMenu(BuildContext context) {
-    return PopupMenuButton<String>(
-      icon: Icon(
-        Icons.more_vert,
-        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-        size: 20,
-      ),
-      itemBuilder: (context) => [
-        if (onEdit != null)
-          PopupMenuItem<String>(
-            value: 'edit',
-            child: Row(
-              children: [
-                Icon(
-                  Icons.edit,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 18,
-                ),
-                const SizedBox(width: 8),
-                const Text('Editar'),
-              ],
-            ),
-          ),
-        if (onDelete != null)
-          PopupMenuItem<String>(
-            value: 'delete',
-            child: Row(
-              children: [
-                Icon(
-                  Icons.delete,
-                  color: Theme.of(context).colorScheme.error,
-                  size: 18,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Excluir',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
+    return Semantics(
+      label: 'Mais opções para a transação',
+      button: true,
+      child: PopupMenuButton<String>(
+        icon: Icon(
+          Icons.more_vert,
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          size: 20,
+        ),
+        itemBuilder: (context) => [
+          if (onEdit != null)
+            PopupMenuItem<String>(
+              value: 'edit',
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.edit,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 18,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  const Text('Editar'),
+                ],
+              ),
             ),
-          ),
-      ],
-      onSelected: (value) {
-        switch (value) {
-          case 'edit':
-            onEdit?.call(transaction);
-            break;
-          case 'delete':
-            onDelete?.call(transaction);
-            break;
-        }
-      },
+          if (onDelete != null)
+            PopupMenuItem<String>(
+              value: 'delete',
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.delete,
+                    color: Theme.of(context).colorScheme.error,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Excluir',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+        onSelected: (value) {
+          switch (value) {
+            case 'edit':
+              onEdit?.call(transaction);
+              break;
+            case 'delete':
+              onDelete?.call(transaction);
+              break;
+          }
+        },
+      ),
     );
   }
 
