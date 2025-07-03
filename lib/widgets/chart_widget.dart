@@ -174,7 +174,7 @@ class _ChartWidgetState extends State<ChartWidget> with SingleTickerProviderStat
       return PieChartSectionData(
         color: color,
         value: amount,
-        title: '\${percentage.toStringAsFixed(1)}%',
+        title: '${percentage.toStringAsFixed(1)}%',
         radius: isTouched ? 70 : 60,
         titleStyle: TextStyle(
           fontSize: isTouched ? 14 : 12,

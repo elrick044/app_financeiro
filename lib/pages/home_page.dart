@@ -41,6 +41,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
       final user = await _firebaseService.getUserData(currentUser.uid);
       final categories = await _firebaseService.getCategories();
+
+
       final currentMonth = DateTime.now();
       final stats = await _firebaseService.getMonthlyStats(currentUser.uid, currentMonth);
 
@@ -93,7 +95,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         actions: [
           IconButton(
             icon: Icon(
-              Icons.refresh,
+                  Icons.refresh,
               color: Theme.of(context).colorScheme.primary,
             ),
             onPressed: _loadData,
@@ -250,18 +252,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildProfileTab() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          _buildProfileCard(),
-          const SizedBox(height: 16),
-          if (_currentUser != null) ...[
-            GamificationWidget(user: _currentUser!),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            _buildProfileCard(),
             const SizedBox(height: 16),
+            if (_currentUser != null) ...[
+              GamificationWidget(user: _currentUser!),
+              const SizedBox(height: 16),
+            ],
+            _buildProfileActions(),
           ],
-          _buildProfileActions(),
-        ],
+        ),
       ),
     );
   }

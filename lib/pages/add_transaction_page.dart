@@ -34,6 +34,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   void initState() {
     super.initState();
     _initializeForm();
+    print(widget.categories);
   }
 
   void _initializeForm() {

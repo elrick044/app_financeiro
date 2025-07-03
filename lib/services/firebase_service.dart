@@ -214,6 +214,7 @@ class FirebaseService {
         incomeByCategory: incomeByCategory,
       );
     } catch (e) {
+      print(e);
       throw 'Erro ao calcular estatísticas mensais: $e';
     }
   }
