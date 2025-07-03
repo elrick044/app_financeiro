@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1027194375005",
+    "project_id": "cmbq153vorkf7m3umymp5sxm59xoc8",
+    "storage_bucket": "cmbq153vorkf7m3umymp5sxm59xoc8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1027194375005:android:a14edbd36e24a4a3baf6b4",
+        "android_client_info": {
+          "package_name": "goncalves.erick.app_financeiro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5mHtiKLmm84pdvKG_cjpnUk2u9uNYZ7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
